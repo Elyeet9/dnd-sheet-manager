@@ -34,6 +34,8 @@ type SheetData = {
   hitDiceMax: string;
   deathSuccesses: number;
   deathFailures: number;
+  classFeaturesLeft: string[];
+  classFeaturesRight: string[];
 };
 
 type SkillKey =
@@ -63,6 +65,14 @@ type AbilityKey =
   | "intelligence"
   | "wisdom"
   | "charisma";
+
+type WeaponEntry = {
+  id: string;
+  name: string;
+  attackBonus: string;
+  damageType: string;
+  notes: string;
+};
 
 const skillKeys: SkillKey[] = [
   "athletics",
@@ -104,6 +114,14 @@ const defaultSavingThrowFlags = abilityKeys.reduce<Record<AbilityKey, boolean>>(
   {} as Record<AbilityKey, boolean>,
 );
 
+const defaultWeapons: WeaponEntry[] = Array.from({ length: 6 }, (_, index) => ({
+  id: `default-${index + 1}`,
+  name: "",
+  attackBonus: "",
+  damageType: "",
+  notes: "",
+}));
+
 const defaultSheetData: SheetData = {
   characterName: "",
   background: "",
@@ -128,7 +146,7 @@ const defaultSheetData: SheetData = {
   speed: "",
   size: "",
   heroicInspiration: false,
-  weapons: [],
+  weapons: defaultWeapons,
   hpCurrent: "",
   hpTemp: "",
   hpMax: "",
@@ -136,17 +154,11 @@ const defaultSheetData: SheetData = {
   hitDiceMax: "",
   deathSuccesses: 0,
   deathFailures: 0,
+  classFeaturesLeft: [""],
+  classFeaturesRight: [""],
 };
 
 const storageKey = "dnd-sheet-2024-v1";
-
-type WeaponEntry = {
-  id: string;
-  name: string;
-  attackBonus: string;
-  damageType: string;
-  notes: string;
-};
 
 export default function Home() {
   const [sheetData, setSheetData] = useState<SheetData>(defaultSheetData);
@@ -195,7 +207,7 @@ export default function Home() {
           speed: parsed.speed ?? "",
           size: parsed.size ?? "",
           heroicInspiration: parsed.heroicInspiration ?? false,
-          weapons: parsed.weapons ?? [],
+          weapons: parsed.weapons ?? defaultWeapons,
           hpCurrent: parsed.hpCurrent ?? "",
           hpTemp: parsed.hpTemp ?? "",
           hpMax: parsed.hpMax ?? "",
@@ -203,6 +215,8 @@ export default function Home() {
           hitDiceMax: parsed.hitDiceMax ?? "",
           deathSuccesses: parsed.deathSuccesses ?? 0,
           deathFailures: parsed.deathFailures ?? 0,
+          classFeaturesLeft: parsed.classFeaturesLeft ?? [""],
+          classFeaturesRight: parsed.classFeaturesRight ?? [""],
         });
       } catch {
         setSheetData(defaultSheetData);
@@ -337,6 +351,34 @@ export default function Home() {
     setSheetData((prev) => ({
       ...prev,
       weapons: prev.weapons.filter((entry) => entry.id !== id),
+    }));
+  };
+
+  const addClassFeature = (side: "classFeaturesLeft" | "classFeaturesRight") => {
+    setSheetData((prev) => ({
+      ...prev,
+      [side]: [...prev[side], ""],
+    }));
+  };
+
+  const updateClassFeature = (
+    side: "classFeaturesLeft" | "classFeaturesRight",
+    index: number,
+    value: string,
+  ) => {
+    setSheetData((prev) => ({
+      ...prev,
+      [side]: prev[side].map((entry, idx) => (idx === index ? value : entry)),
+    }));
+  };
+
+  const removeClassFeature = (
+    side: "classFeaturesLeft" | "classFeaturesRight",
+    index: number,
+  ) => {
+    setSheetData((prev) => ({
+      ...prev,
+      [side]: prev[side].filter((_, idx) => idx !== index),
     }));
   };
 
@@ -1078,18 +1120,10 @@ export default function Home() {
             </div>
 
             <div className="mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
-              <div className="flex items-center justify-between rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+              <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                   Weapons & Damage Cantrips
                 </div>
-                <button
-                  type="button"
-                  onClick={addWeaponEntry}
-                  className="flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-purple-200 transition hover:border-purple-400"
-                  aria-label="Add weapon"
-                >
-                  +
-                </button>
               </div>
 
               <div className="mt-3 grid gap-2 overflow-x-auto">
@@ -1110,11 +1144,11 @@ export default function Home() {
                     <div />
                   </div>
 
-                {sheetData.weapons.length === 0 && (
-                  <div className="rounded-lg border border-dashed border-purple-900/60 bg-[#140d24] px-3 py-6 text-center text-xs text-purple-200">
-                    Add entries to track weapons and cantrips.
-                  </div>
-                )}
+                  {sheetData.weapons.length === 0 && (
+                    <div className="rounded-lg border border-dashed border-purple-900/60 bg-[#140d24] px-3 py-6 text-center text-xs text-purple-200">
+                      Add entries to track weapons and cantrips.
+                    </div>
+                  )}
 
                   {sheetData.weapons.map((entry) => (
                     <div
@@ -1213,7 +1247,95 @@ export default function Home() {
                       </div>
                     </div>
                   ))}
+                  <button
+                    type="button"
+                    onClick={addWeaponEntry}
+                    className="flex w-full items-center justify-center gap-2 bg-[#140d24] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-200 transition hover:bg-[#1a1130]"
+                    aria-label="Add weapon"
+                  >
+                    <span className="text-sm">+</span>
+                    Add Weapon
+                  </button>
                 </div>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+              <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Class Features
+                </div>
+              </div>
+
+              <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
+                {["classFeaturesLeft", "classFeaturesRight"].map((side) => {
+                  const entries = sheetData[
+                    side as "classFeaturesLeft" | "classFeaturesRight"
+                  ];
+                  return (
+                  <div
+                    key={side}
+                    className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
+                  >
+                    <div className="space-y-2">
+                      {entries.map((value, index) => (
+                        <div
+                          key={`${side}-${index}`}
+                          className="flex items-start gap-2"
+                        >
+                          <textarea
+                            rows={1}
+                            value={value}
+                            onChange={(event) =>
+                              updateClassFeature(
+                                side as "classFeaturesLeft" | "classFeaturesRight",
+                                index,
+                                event.target.value,
+                              )
+                            }
+                            ref={(element) => {
+                              if (!element) return;
+                              element.style.height = "auto";
+                              element.style.height = `${element.scrollHeight}px`;
+                            }}
+                            onInput={(event) => {
+                              const target = event.currentTarget;
+                              target.style.height = "auto";
+                              target.style.height = `${target.scrollHeight}px`;
+                            }}
+                            className="w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm leading-5 text-slate-100"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removeClassFeature(
+                                side as "classFeaturesLeft" | "classFeaturesRight",
+                                index,
+                              )
+                            }
+                            className="mt-1 flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-red-300"
+                            aria-label="Remove class feature"
+                          >
+                            −
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addClassFeature(
+                            side as "classFeaturesLeft" | "classFeaturesRight",
+                          )
+                        }
+                        className="flex w-full items-center justify-center gap-2 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-200 transition hover:border-purple-400"
+                      >
+                        <span className="text-sm">+</span>
+                        Add Feature
+                      </button>
+                    </div>
+                  </div>
+                );
+                })}
               </div>
             </div>
           </div>
