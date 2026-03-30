@@ -26,6 +26,7 @@ type SheetData = {
   speed: string;
   size: string;
   heroicInspiration: boolean;
+  weapons: WeaponEntry[];
   hpCurrent: string;
   hpTemp: string;
   hpMax: string;
@@ -127,6 +128,7 @@ const defaultSheetData: SheetData = {
   speed: "",
   size: "",
   heroicInspiration: false,
+  weapons: [],
   hpCurrent: "",
   hpTemp: "",
   hpMax: "",
@@ -137,6 +139,14 @@ const defaultSheetData: SheetData = {
 };
 
 const storageKey = "dnd-sheet-2024-v1";
+
+type WeaponEntry = {
+  id: string;
+  name: string;
+  attackBonus: string;
+  damageType: string;
+  notes: string;
+};
 
 export default function Home() {
   const [sheetData, setSheetData] = useState<SheetData>(defaultSheetData);
@@ -185,6 +195,7 @@ export default function Home() {
           speed: parsed.speed ?? "",
           size: parsed.size ?? "",
           heroicInspiration: parsed.heroicInspiration ?? false,
+          weapons: parsed.weapons ?? [],
           hpCurrent: parsed.hpCurrent ?? "",
           hpTemp: parsed.hpTemp ?? "",
           hpMax: parsed.hpMax ?? "",
@@ -292,6 +303,40 @@ export default function Home() {
     setSheetData((prev) => ({
       ...prev,
       [field]: prev[field] + delta,
+    }));
+  };
+
+  const addWeaponEntry = () => {
+    const newEntry: WeaponEntry = {
+      id: crypto.randomUUID(),
+      name: "",
+      attackBonus: "",
+      damageType: "",
+      notes: "",
+    };
+    setSheetData((prev) => ({
+      ...prev,
+      weapons: [...prev.weapons, newEntry],
+    }));
+  };
+
+  const updateWeaponEntry = (
+    id: string,
+    field: keyof Omit<WeaponEntry, "id">,
+    value: string,
+  ) => {
+    setSheetData((prev) => ({
+      ...prev,
+      weapons: prev.weapons.map((entry) =>
+        entry.id === id ? { ...entry, [field]: value } : entry,
+      ),
+    }));
+  };
+
+  const removeWeaponEntry = (id: string) => {
+    setSheetData((prev) => ({
+      ...prev,
+      weapons: prev.weapons.filter((entry) => entry.id !== id),
     }));
   };
 
@@ -1028,6 +1073,146 @@ export default function Home() {
                       +
                     </button>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+              <div className="flex items-center justify-between rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Weapons & Damage Cantrips
+                </div>
+                <button
+                  type="button"
+                  onClick={addWeaponEntry}
+                  className="flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-purple-200 transition hover:border-purple-400"
+                  aria-label="Add weapon"
+                >
+                  +
+                </button>
+              </div>
+
+              <div className="mt-3 grid gap-2 overflow-x-auto">
+                <div className="min-w-140 overflow-hidden rounded-lg border border-purple-900/60 divide-y divide-purple-900/60">
+                  <div className="grid min-w-0 grid-cols-[2.1fr_1.6fr_2fr_2.1fr_28px] gap-0 divide-x divide-purple-900/60 bg-[#0f0a1c] text-[11px] font-semibold uppercase tracking-[0.16em] text-purple-200">
+                    <div className="flex min-w-0 items-center px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                      Name
+                    </div>
+                    <div className="flex min-w-0 items-center px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                      Atk Bonus / DC
+                    </div>
+                    <div className="flex min-w-0 items-center px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                      Damage & Type
+                    </div>
+                    <div className="flex min-w-0 items-center px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                      Notes
+                    </div>
+                    <div />
+                  </div>
+
+                {sheetData.weapons.length === 0 && (
+                  <div className="rounded-lg border border-dashed border-purple-900/60 bg-[#140d24] px-3 py-6 text-center text-xs text-purple-200">
+                    Add entries to track weapons and cantrips.
+                  </div>
+                )}
+
+                  {sheetData.weapons.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="grid min-w-0 grid-cols-[2.1fr_1.6fr_2fr_2.1fr_28px] gap-0 divide-x divide-purple-900/60 bg-[#0f0a1c]"
+                    >
+                      <textarea
+                        rows={1}
+                        value={entry.name}
+                        onChange={(event) =>
+                          updateWeaponEntry(entry.id, "name", event.target.value)
+                        }
+                        ref={(element) => {
+                          if (!element) return;
+                          element.style.height = "auto";
+                          element.style.height = `${element.scrollHeight}px`;
+                        }}
+                        onInput={(event) => {
+                          const target = event.currentTarget;
+                          target.style.height = "auto";
+                          target.style.height = `${target.scrollHeight}px`;
+                        }}
+                        className="min-w-0 w-full resize-none overflow-hidden rounded-none bg-transparent px-2 py-1 text-sm leading-5 text-slate-100"
+                      />
+                      <textarea
+                        rows={1}
+                        value={entry.attackBonus}
+                        onChange={(event) =>
+                          updateWeaponEntry(
+                            entry.id,
+                            "attackBonus",
+                            event.target.value,
+                          )
+                        }
+                        ref={(element) => {
+                          if (!element) return;
+                          element.style.height = "auto";
+                          element.style.height = `${element.scrollHeight}px`;
+                        }}
+                        onInput={(event) => {
+                          const target = event.currentTarget;
+                          target.style.height = "auto";
+                          target.style.height = `${target.scrollHeight}px`;
+                        }}
+                        className="min-w-0 w-full resize-none overflow-hidden rounded-none bg-transparent px-2 py-1 text-sm leading-5 text-slate-100"
+                      />
+                      <textarea
+                        rows={1}
+                        value={entry.damageType}
+                        onChange={(event) =>
+                          updateWeaponEntry(
+                            entry.id,
+                            "damageType",
+                            event.target.value,
+                          )
+                        }
+                        ref={(element) => {
+                          if (!element) return;
+                          element.style.height = "auto";
+                          element.style.height = `${element.scrollHeight}px`;
+                        }}
+                        onInput={(event) => {
+                          const target = event.currentTarget;
+                          target.style.height = "auto";
+                          target.style.height = `${target.scrollHeight}px`;
+                        }}
+                        className="min-w-0 w-full resize-none overflow-hidden rounded-none bg-transparent px-2 py-1 text-sm leading-5 text-slate-100"
+                      />
+                      <textarea
+                        rows={1}
+                        value={entry.notes}
+                        onChange={(event) =>
+                          updateWeaponEntry(entry.id, "notes", event.target.value)
+                        }
+                        ref={(element) => {
+                          if (!element) return;
+                          element.style.height = "auto";
+                          element.style.height = `${element.scrollHeight}px`;
+                        }}
+                        onInput={(event) => {
+                          const target = event.currentTarget;
+                          target.style.height = "auto";
+                          target.style.height = `${target.scrollHeight}px`;
+                        }}
+                        className="min-w-0 w-full resize-none overflow-hidden rounded-none bg-transparent px-2 py-1 text-sm leading-5 text-slate-100"
+                      />
+                      <div className="flex items-center justify-center bg-transparent">
+                        <button
+                          type="button"
+                          onClick={() => removeWeaponEntry(entry.id)}
+                          className="flex h-9 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-red-300"
+                          aria-label="Remove weapon"
+                        >
+                          −
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
