@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Cinzel_Decorative } from "next/font/google";
 import Swal from "sweetalert2";
 
 type SheetData = {
@@ -82,6 +83,12 @@ type WeaponEntry = {
   damageType: string;
   notes: string;
 };
+
+const titleFont = Cinzel_Decorative({
+  subsets: ["latin"],
+  weight: ["700"],
+  display: "swap",
+});
 
 const skillKeys: SkillKey[] = [
   "athletics",
@@ -672,12 +679,17 @@ export default function Home() {
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 px-4 py-5 sm:px-6 sm:py-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-semibold text-slate-50">DnD 2024 Sheet</h1>
+            <h1
+              className={`text-3xl font-semibold text-slate-50 ${titleFont.className}`}
+            >
+              DnD 2024 Sheet
+            </h1>
             <p className="text-sm text-slate-300">
               Begin with core info and expand as modules are added.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <div className="flex flex-wrap items-center gap-2">
             <input
               ref={loadInputRef}
               type="file"
@@ -708,6 +720,10 @@ export default function Home() {
             >
               Save JSON
             </button>
+            </div>
+            <p className="text-xs text-purple-200/70">
+              Data is saved in your browser cache. Still save JSON to prevent data loss.
+            </p>
           </div>
         </div>
 
