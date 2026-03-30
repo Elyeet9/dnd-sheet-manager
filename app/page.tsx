@@ -38,6 +38,12 @@ type SheetData = {
   classFeaturesRight: string[];
   speciesTraits: string[];
   feats: string[];
+  armorTrainingLight: boolean;
+  armorTrainingMedium: boolean;
+  armorTrainingHeavy: boolean;
+  armorTrainingShields: boolean;
+  weaponProficiencies: string;
+  toolProficiencies: string;
 };
 
 type SkillKey =
@@ -160,6 +166,12 @@ const defaultSheetData: SheetData = {
   classFeaturesRight: [""],
   speciesTraits: [""],
   feats: [""],
+  armorTrainingLight: false,
+  armorTrainingMedium: false,
+  armorTrainingHeavy: false,
+  armorTrainingShields: false,
+  weaponProficiencies: "",
+  toolProficiencies: "",
 };
 
 const storageKey = "dnd-sheet-2024-v1";
@@ -223,6 +235,12 @@ export default function Home() {
           classFeaturesRight: parsed.classFeaturesRight ?? [""],
           speciesTraits: parsed.speciesTraits ?? [""],
           feats: parsed.feats ?? [""],
+          armorTrainingLight: parsed.armorTrainingLight ?? false,
+          armorTrainingMedium: parsed.armorTrainingMedium ?? false,
+          armorTrainingHeavy: parsed.armorTrainingHeavy ?? false,
+          armorTrainingShields: parsed.armorTrainingShields ?? false,
+          weaponProficiencies: parsed.weaponProficiencies ?? "",
+          toolProficiencies: parsed.toolProficiencies ?? "",
         });
       } catch {
         setSheetData(defaultSheetData);
@@ -728,9 +746,10 @@ export default function Home() {
         </section>
 
         <section className="grid items-start gap-3 md:grid-cols-12">
-          <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm md:col-span-12 lg:col-span-4">
-            <div className="grid items-stretch gap-3 lg:grid-cols-2">
-              <div className="grid gap-3">
+          <div className="grid gap-3 md:col-span-12 lg:col-span-4">
+            <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm">
+              <div className="grid items-stretch gap-3 lg:grid-cols-2">
+                <div className="grid gap-3">
                 <div className="flex h-full flex-col gap-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                     Proficiency Bonus
@@ -1019,6 +1038,85 @@ export default function Home() {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm">
+              <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Equipment Training & Proficiencies
+                </div>
+              </div>
+              <div className="mt-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Armor Training
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] text-purple-200">
+                  {[
+                    { key: "armorTrainingLight", label: "Light" },
+                    { key: "armorTrainingMedium", label: "Medium" },
+                    { key: "armorTrainingHeavy", label: "Heavy" },
+                    { key: "armorTrainingShields", label: "Shields" },
+                  ].map((item) => (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() =>
+                        setSheetData((prev) => ({
+                          ...prev,
+                          [item.key]: !prev[item.key as keyof SheetData],
+                        }))
+                      }
+                      className="flex items-center gap-2 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1 text-left"
+                    >
+                      <span
+                        className={`h-3 w-3 rounded-full border text-[9px] font-semibold transition-colors ${
+                          sheetData[item.key as keyof SheetData]
+                            ? "border-purple-400 bg-purple-400 text-slate-950"
+                            : "border-purple-900/60 bg-[#0f0a1c] text-slate-300"
+                        }`}
+                      />
+                      <span className="font-semibold text-purple-200">
+                        {item.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 grid gap-3">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                      Weapons
+                    </div>
+                    <textarea
+                      rows={4}
+                      value={sheetData.weaponProficiencies}
+                      onChange={(event) =>
+                        setSheetData((prev) => ({
+                          ...prev,
+                          weaponProficiencies: event.target.value,
+                        }))
+                      }
+                      className="mt-2 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                      Tools
+                    </div>
+                    <textarea
+                      rows={3}
+                      value={sheetData.toolProficiencies}
+                      onChange={(event) =>
+                        setSheetData((prev) => ({
+                          ...prev,
+                          toolProficiencies: event.target.value,
+                        }))
+                      }
+                      className="mt-2 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
