@@ -12,6 +12,15 @@ type SheetData = {
   xp: string;
   armorClass: string;
   shield: string;
+  strength: string;
+  dexterity: string;
+  constitution: string;
+  intelligence: string;
+  wisdom: string;
+  charisma: string;
+  skillProficiencies: Record<SkillKey, boolean>;
+  skillExpertise: Record<SkillKey, boolean>;
+  savingThrowProficiencies: Record<AbilityKey, boolean>;
   hpCurrent: string;
   hpTemp: string;
   hpMax: string;
@@ -20,6 +29,74 @@ type SheetData = {
   deathSuccesses: number;
   deathFailures: number;
 };
+
+type SkillKey =
+  | "athletics"
+  | "acrobatics"
+  | "sleightOfHand"
+  | "stealth"
+  | "arcana"
+  | "history"
+  | "investigation"
+  | "nature"
+  | "religion"
+  | "animalHandling"
+  | "insight"
+  | "medicine"
+  | "perception"
+  | "survival"
+  | "deception"
+  | "intimidation"
+  | "performance"
+  | "persuasion";
+
+type AbilityKey =
+  | "strength"
+  | "dexterity"
+  | "constitution"
+  | "intelligence"
+  | "wisdom"
+  | "charisma";
+
+const skillKeys: SkillKey[] = [
+  "athletics",
+  "acrobatics",
+  "sleightOfHand",
+  "stealth",
+  "arcana",
+  "history",
+  "investigation",
+  "nature",
+  "religion",
+  "animalHandling",
+  "insight",
+  "medicine",
+  "perception",
+  "survival",
+  "deception",
+  "intimidation",
+  "performance",
+  "persuasion",
+];
+
+const defaultSkillFlags = skillKeys.reduce<Record<SkillKey, boolean>>(
+  (accumulator, key) => ({ ...accumulator, [key]: false }),
+  {} as Record<SkillKey, boolean>,
+);
+
+const abilityKeys: AbilityKey[] = [
+  "strength",
+  "dexterity",
+  "constitution",
+  "intelligence",
+  "wisdom",
+  "charisma",
+];
+
+const defaultSavingThrowFlags = abilityKeys.reduce<Record<AbilityKey, boolean>>(
+  (accumulator, key) => ({ ...accumulator, [key]: false }),
+  {} as Record<AbilityKey, boolean>,
+);
 
 const defaultSheetData: SheetData = {
   characterName: "",
@@ -31,6 +108,15 @@ const defaultSheetData: SheetData = {
   xp: "",
   armorClass: "",
   shield: "",
+  strength: "",
+  dexterity: "",
+  constitution: "",
+  intelligence: "",
+  wisdom: "",
+  charisma: "",
+  skillProficiencies: defaultSkillFlags,
+  skillExpertise: defaultSkillFlags,
+  savingThrowProficiencies: defaultSavingThrowFlags,
   hpCurrent: "",
   hpTemp: "",
   hpMax: "",
@@ -66,6 +152,24 @@ export default function Home() {
           xp: parsed.xp ?? "",
           armorClass: parsed.armorClass ?? "",
           shield: parsed.shield ?? "",
+          strength: parsed.strength ?? "",
+          dexterity: parsed.dexterity ?? "",
+          constitution: parsed.constitution ?? "",
+          intelligence: parsed.intelligence ?? "",
+          wisdom: parsed.wisdom ?? "",
+          charisma: parsed.charisma ?? "",
+          skillProficiencies: {
+            ...defaultSkillFlags,
+            ...(parsed.skillProficiencies ?? {}),
+          },
+          skillExpertise: {
+            ...defaultSkillFlags,
+            ...(parsed.skillExpertise ?? {}),
+          },
+          savingThrowProficiencies: {
+            ...defaultSavingThrowFlags,
+            ...(parsed.savingThrowProficiencies ?? {}),
+          },
           hpCurrent: parsed.hpCurrent ?? "",
           hpTemp: parsed.hpTemp ?? "",
           hpMax: parsed.hpMax ?? "",
@@ -109,6 +213,122 @@ export default function Home() {
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setSheetData((prev) => ({ ...prev, [field]: event.target.value }));
     };
+
+  const handleSkillToggle =
+    (field: "skillProficiencies" | "skillExpertise", key: SkillKey) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const { checked } = event.target;
+      setSheetData((prev) => ({
+        ...prev,
+        [field]: {
+          ...prev[field],
+          [key]: checked,
+        },
+      }));
+    };
+
+  const toggleSkillFlag = (
+    field: "skillProficiencies" | "skillExpertise",
+    key: SkillKey,
+  ) => {
+    setSheetData((prev) => ({
+      ...prev,
+      [field]: {
+        ...prev[field],
+        [key]: !prev[field][key],
+      },
+    }));
+  };
+
+  const toggleSavingThrow = (key: AbilityKey) => {
+    setSheetData((prev) => ({
+      ...prev,
+      savingThrowProficiencies: {
+        ...prev.savingThrowProficiencies,
+        [key]: !prev.savingThrowProficiencies[key],
+      },
+    }));
+  };
+
+  const toNumber = (value: string) => {
+    const parsed = Number.parseInt(value, 10);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
+  const formatMod = (score: number) => {
+    const mod = Math.floor((score - 10) / 2);
+    return mod >= 0 ? `+${mod}` : `${mod}`;
+  };
+
+  const levelValue = Math.max(1, toNumber(sheetData.level));
+  const proficiencyBonus =
+    levelValue >= 17
+      ? 6
+      : levelValue >= 13
+        ? 5
+        : levelValue >= 9
+          ? 4
+          : levelValue >= 5
+            ? 3
+            : 2;
+
+  const abilities: Array<{
+    key: AbilityKey;
+    label: string;
+    skills: { key: SkillKey; label: string }[];
+  }> = [
+    {
+      key: "strength",
+      label: "Strength",
+      skills: [{ key: "athletics", label: "Athletics" }],
+    },
+    {
+      key: "dexterity",
+      label: "Dexterity",
+      skills: [
+        { key: "acrobatics", label: "Acrobatics" },
+        { key: "sleightOfHand", label: "Sleight of Hand" },
+        { key: "stealth", label: "Stealth" },
+      ],
+    },
+    {
+      key: "constitution",
+      label: "Constitution",
+      skills: [],
+    },
+    {
+      key: "intelligence",
+      label: "Intelligence",
+      skills: [
+        { key: "arcana", label: "Arcana" },
+        { key: "history", label: "History" },
+        { key: "investigation", label: "Investigation" },
+        { key: "nature", label: "Nature" },
+        { key: "religion", label: "Religion" },
+      ],
+    },
+    {
+      key: "wisdom",
+      label: "Wisdom",
+      skills: [
+        { key: "animalHandling", label: "Animal Handling" },
+        { key: "insight", label: "Insight" },
+        { key: "medicine", label: "Medicine" },
+        { key: "perception", label: "Perception" },
+        { key: "survival", label: "Survival" },
+      ],
+    },
+    {
+      key: "charisma",
+      label: "Charisma",
+      skills: [
+        { key: "deception", label: "Deception" },
+        { key: "intimidation", label: "Intimidation" },
+        { key: "performance", label: "Performance" },
+        { key: "persuasion", label: "Persuasion" },
+      ],
+    },
+  ];
 
   const renderPips = (
     label: string,
@@ -358,6 +578,148 @@ export default function Home() {
                     setSheetData((prev) => ({ ...prev, deathFailures: next })),
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="grid items-stretch gap-3 md:grid-cols-12">
+          <div className="h-full rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm md:col-span-12">
+            <div className="grid items-stretch gap-3 lg:grid-cols-[2fr_5fr]">
+              <div className="flex h-full flex-col gap-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Proficiency Bonus
+                </div>
+                <div className="flex flex-1 items-center justify-center text-2xl font-semibold text-slate-100">
+                  +{proficiencyBonus}
+                </div>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {abilities.map((ability) => {
+                  const rawValue =
+                    (sheetData[ability.key as keyof SheetData] as string) ?? "";
+                  const value = toNumber(rawValue);
+                  return (
+                    <div
+                      key={ability.key}
+                      className="flex h-full flex-col gap-2 rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
+                    >
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                        {ability.label}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <input
+                          type="number"
+                          min={1}
+                          value={rawValue}
+                          onChange={handleChange(ability.key as keyof SheetData)}
+                          className="w-16 rounded-none border-b border-purple-500/60 bg-[#0f0a1c] px-2 py-2 text-center text-sm text-slate-100"
+                        />
+                        <span className="text-lg font-semibold text-slate-100">
+                          {formatMod(value)}
+                        </span>
+                      </div>
+                      <div className="mt-2 h-px w-full bg-purple-900/60" />
+                      <div className="grid gap-2">
+                        <div className="flex items-center justify-between rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1">
+                          <span className="text-[11px] font-semibold text-purple-200">
+                            Saving Throw
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] font-semibold text-slate-100">
+                              {(() => {
+                                const isProficient =
+                                  sheetData.savingThrowProficiencies[
+                                    ability.key
+                                  ];
+                                const total =
+                                  Math.floor((value - 10) / 2) +
+                                  (isProficient ? proficiencyBonus : 0);
+                                return total >= 0 ? `+${total}` : `${total}`;
+                              })()}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => toggleSavingThrow(ability.key)}
+                              className={`h-4 w-4 rounded-full border text-[10px] font-semibold transition-colors ${
+                                sheetData.savingThrowProficiencies[ability.key]
+                                  ? "border-purple-400 bg-purple-400 text-slate-950"
+                                  : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
+                              }`}
+                              aria-label={`${ability.label} saving throw proficiency`}
+                            />
+                          </div>
+                        </div>
+                        {ability.skills.length > 0 && (
+                          <div className="h-px w-full bg-purple-900/60" />
+                        )}
+                        {ability.skills.length > 0 && (
+                          <>
+                            {ability.skills.map((skill) => {
+                              const isProficient =
+                                sheetData.skillProficiencies[skill.key];
+                              const isExpert =
+                                sheetData.skillExpertise[skill.key];
+                              const skillTotal =
+                                Math.floor((value - 10) / 2) +
+                                (isProficient ? proficiencyBonus : 0) +
+                                (isExpert ? proficiencyBonus : 0);
+                              const formatted =
+                                skillTotal >= 0
+                                  ? `+${skillTotal}`
+                                  : `${skillTotal}`;
+                              return (
+                                <div
+                                  key={skill.key}
+                                  className="flex items-center justify-between rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1"
+                                >
+                                  <span className="text-[11px] font-semibold text-purple-200">
+                                    {skill.label}
+                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[11px] font-semibold text-slate-100">
+                                      {formatted}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        toggleSkillFlag(
+                                          "skillProficiencies",
+                                          skill.key,
+                                        )
+                                      }
+                                      className={`h-4 w-4 rounded-full border text-[10px] font-semibold transition-colors ${
+                                        sheetData.skillProficiencies[skill.key]
+                                          ? "border-purple-400 bg-purple-400 text-slate-950"
+                                          : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
+                                      }`}
+                                      aria-label={`${skill.label} proficiency`}
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        toggleSkillFlag(
+                                          "skillExpertise",
+                                          skill.key,
+                                        )
+                                      }
+                                      className={`h-4 w-4 rounded-full border text-[10px] font-semibold transition-colors ${
+                                        sheetData.skillExpertise[skill.key]
+                                          ? "border-purple-400 bg-purple-400 text-slate-950"
+                                          : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
+                                      }`}
+                                      aria-label={`${skill.label} expertise`}
+                                    />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
