@@ -1748,7 +1748,7 @@ export default function Home() {
         </section>
       </main>
       <footer className="mx-auto w-full max-w-6xl px-4 pb-6 text-center text-xs text-purple-200/70">
-        Created by Elyeet ·{" "}
+        Created by Elyeet · Inspired by the D&D 2024 Character Sheet ·{" "}
         <a
           href="https://github.com/Elyeet9"
           className="text-purple-200 underline decoration-purple-500/60 underline-offset-4 hover:text-purple-100"
