@@ -21,6 +21,11 @@ type SheetData = {
   skillProficiencies: Record<SkillKey, boolean>;
   skillExpertise: Record<SkillKey, boolean>;
   savingThrowProficiencies: Record<AbilityKey, boolean>;
+  initiativeAdjust: number;
+  passivePerceptionAdjust: number;
+  speed: string;
+  size: string;
+  heroicInspiration: boolean;
   hpCurrent: string;
   hpTemp: string;
   hpMax: string;
@@ -117,6 +122,11 @@ const defaultSheetData: SheetData = {
   skillProficiencies: defaultSkillFlags,
   skillExpertise: defaultSkillFlags,
   savingThrowProficiencies: defaultSavingThrowFlags,
+  initiativeAdjust: 0,
+  passivePerceptionAdjust: 0,
+  speed: "",
+  size: "",
+  heroicInspiration: false,
   hpCurrent: "",
   hpTemp: "",
   hpMax: "",
@@ -170,6 +180,11 @@ export default function Home() {
             ...defaultSavingThrowFlags,
             ...(parsed.savingThrowProficiencies ?? {}),
           },
+          initiativeAdjust: parsed.initiativeAdjust ?? 0,
+          passivePerceptionAdjust: parsed.passivePerceptionAdjust ?? 0,
+          speed: parsed.speed ?? "",
+          size: parsed.size ?? "",
+          heroicInspiration: parsed.heroicInspiration ?? false,
           hpCurrent: parsed.hpCurrent ?? "",
           hpTemp: parsed.hpTemp ?? "",
           hpMax: parsed.hpMax ?? "",
@@ -255,9 +270,29 @@ export default function Home() {
     return Number.isNaN(parsed) ? 0 : parsed;
   };
 
+  const getAbilityMod = (key: AbilityKey) =>
+    Math.floor((toNumber(sheetData[key]) - 10) / 2);
+
   const formatMod = (score: number) => {
     const mod = Math.floor((score - 10) / 2);
     return mod >= 0 ? `+${mod}` : `${mod}`;
+  };
+
+  const getSkillTotal = (skillKey: SkillKey, abilityKey: AbilityKey) => {
+    const isProficient = sheetData.skillProficiencies[skillKey];
+    const isExpert = sheetData.skillExpertise[skillKey];
+    return (
+      getAbilityMod(abilityKey) +
+      (isProficient ? proficiencyBonus : 0) +
+      (isExpert ? proficiencyBonus : 0)
+    );
+  };
+
+  const adjustNumeric = (field: "initiativeAdjust" | "passivePerceptionAdjust", delta: number) => {
+    setSheetData((prev) => ({
+      ...prev,
+      [field]: prev[field] + delta,
+    }));
   };
 
   const levelValue = Math.max(1, toNumber(sheetData.level));
@@ -583,143 +618,417 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="grid items-stretch gap-3 md:grid-cols-12">
-          <div className="h-full rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm md:col-span-12">
-            <div className="grid items-stretch gap-3 lg:grid-cols-[2fr_5fr]">
-              <div className="flex h-full flex-col gap-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
-                  Proficiency Bonus
+        <section className="grid items-start gap-3 md:grid-cols-12">
+          <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm md:col-span-12 lg:col-span-4">
+            <div className="grid items-stretch gap-3 lg:grid-cols-2">
+              <div className="grid gap-3">
+                <div className="flex h-full flex-col gap-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                    Proficiency Bonus
+                  </div>
+                  <div className="flex flex-1 items-center justify-center text-2xl font-semibold text-slate-100">
+                    +{proficiencyBonus}
+                  </div>
                 </div>
-                <div className="flex flex-1 items-center justify-center text-2xl font-semibold text-slate-100">
-                  +{proficiencyBonus}
+                {abilities
+                  .filter((ability) =>
+                    ["strength", "dexterity", "constitution"].includes(ability.key),
+                  )
+                  .map((ability) => {
+                    const rawValue =
+                      (sheetData[ability.key as keyof SheetData] as string) ?? "";
+                    const value = toNumber(rawValue);
+                    return (
+                      <div
+                        key={ability.key}
+                        className="flex h-full flex-col gap-2 rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
+                      >
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                          {ability.label}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <input
+                            type="number"
+                            min={1}
+                            value={rawValue}
+                            onChange={handleChange(ability.key as keyof SheetData)}
+                            className="w-16 rounded-none border-b border-purple-500/60 bg-[#0f0a1c] px-2 py-2 text-center text-sm text-slate-100"
+                          />
+                          <span className="text-lg font-semibold text-slate-100">
+                            {formatMod(value)}
+                          </span>
+                        </div>
+                        <div className="mt-2 h-px w-full bg-purple-900/60" />
+                        <div className="grid gap-2">
+                          <div className="flex items-center justify-between rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1">
+                            <span className="text-[11px] font-semibold text-purple-200">
+                              Saving Throw
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] font-semibold text-slate-100">
+                                {(() => {
+                                  const isProficient =
+                                    sheetData.savingThrowProficiencies[
+                                      ability.key
+                                    ];
+                                  const total =
+                                    Math.floor((value - 10) / 2) +
+                                    (isProficient ? proficiencyBonus : 0);
+                                  return total >= 0 ? `+${total}` : `${total}`;
+                                })()}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => toggleSavingThrow(ability.key)}
+                                className={`h-4 w-4 rounded-full border text-[10px] font-semibold transition-colors ${
+                                  sheetData.savingThrowProficiencies[ability.key]
+                                    ? "border-purple-400 bg-purple-400 text-slate-950"
+                                    : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
+                                }`}
+                                aria-label={`${ability.label} saving throw proficiency`}
+                              />
+                            </div>
+                          </div>
+                          {ability.skills.length > 0 && (
+                            <div className="h-px w-full bg-purple-900/60" />
+                          )}
+                          {ability.skills.length > 0 && (
+                            <>
+                              {ability.skills.map((skill) => {
+                                const isProficient =
+                                  sheetData.skillProficiencies[skill.key];
+                                const isExpert =
+                                  sheetData.skillExpertise[skill.key];
+                                const skillTotal =
+                                  Math.floor((value - 10) / 2) +
+                                  (isProficient ? proficiencyBonus : 0) +
+                                  (isExpert ? proficiencyBonus : 0);
+                                const formatted =
+                                  skillTotal >= 0
+                                    ? `+${skillTotal}`
+                                    : `${skillTotal}`;
+                                return (
+                                  <div
+                                    key={skill.key}
+                                    className="flex items-center justify-between rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1"
+                                  >
+                                    <span className="text-[11px] font-semibold text-purple-200">
+                                      {skill.label}
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[11px] font-semibold text-slate-100">
+                                        {formatted}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          toggleSkillFlag(
+                                            "skillProficiencies",
+                                            skill.key,
+                                          )
+                                        }
+                                        className={`h-4 w-4 rounded-full border text-[10px] font-semibold transition-colors ${
+                                          sheetData.skillProficiencies[skill.key]
+                                            ? "border-purple-400 bg-purple-400 text-slate-950"
+                                            : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
+                                        }`}
+                                        aria-label={`${skill.label} proficiency`}
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          toggleSkillFlag(
+                                            "skillExpertise",
+                                            skill.key,
+                                          )
+                                        }
+                                        className={`h-4 w-4 rounded-full border text-[10px] font-semibold transition-colors ${
+                                          sheetData.skillExpertise[skill.key]
+                                            ? "border-purple-400 bg-purple-400 text-slate-950"
+                                            : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
+                                        }`}
+                                        aria-label={`${skill.label} expertise`}
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                <div className="flex h-full flex-col items-center justify-center gap-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                  <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                    Heroic Inspiration
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSheetData((prev) => ({
+                        ...prev,
+                        heroicInspiration: !prev.heroicInspiration,
+                      }))
+                    }
+                    className={`h-10 w-10 rounded-full border text-base font-semibold transition-colors ${
+                      sheetData.heroicInspiration
+                        ? "border-purple-400 bg-purple-400 text-slate-950"
+                        : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
+                    }`}
+                    aria-label="Toggle heroic inspiration"
+                  />
                 </div>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {abilities.map((ability) => {
-                  const rawValue =
-                    (sheetData[ability.key as keyof SheetData] as string) ?? "";
-                  const value = toNumber(rawValue);
-                  return (
-                    <div
-                      key={ability.key}
-                      className="flex h-full flex-col gap-2 rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
-                    >
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
-                        {ability.label}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <input
-                          type="number"
-                          min={1}
-                          value={rawValue}
-                          onChange={handleChange(ability.key as keyof SheetData)}
-                          className="w-16 rounded-none border-b border-purple-500/60 bg-[#0f0a1c] px-2 py-2 text-center text-sm text-slate-100"
-                        />
-                        <span className="text-lg font-semibold text-slate-100">
-                          {formatMod(value)}
-                        </span>
-                      </div>
-                      <div className="mt-2 h-px w-full bg-purple-900/60" />
-                      <div className="grid gap-2">
-                        <div className="flex items-center justify-between rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1">
-                          <span className="text-[11px] font-semibold text-purple-200">
-                            Saving Throw
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-semibold text-slate-100">
-                              {(() => {
-                                const isProficient =
-                                  sheetData.savingThrowProficiencies[
-                                    ability.key
-                                  ];
-                                const total =
-                                  Math.floor((value - 10) / 2) +
-                                  (isProficient ? proficiencyBonus : 0);
-                                return total >= 0 ? `+${total}` : `${total}`;
-                              })()}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => toggleSavingThrow(ability.key)}
-                              className={`h-4 w-4 rounded-full border text-[10px] font-semibold transition-colors ${
-                                sheetData.savingThrowProficiencies[ability.key]
-                                  ? "border-purple-400 bg-purple-400 text-slate-950"
-                                  : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
-                              }`}
-                              aria-label={`${ability.label} saving throw proficiency`}
-                            />
-                          </div>
+              <div className="grid gap-3">
+                {abilities
+                  .filter((ability) =>
+                    ["intelligence", "wisdom", "charisma"].includes(ability.key),
+                  )
+                  .map((ability) => {
+                    const rawValue =
+                      (sheetData[ability.key as keyof SheetData] as string) ?? "";
+                    const value = toNumber(rawValue);
+                    return (
+                      <div
+                        key={ability.key}
+                        className="flex h-full flex-col gap-2 rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
+                      >
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                          {ability.label}
                         </div>
-                        {ability.skills.length > 0 && (
-                          <div className="h-px w-full bg-purple-900/60" />
-                        )}
-                        {ability.skills.length > 0 && (
-                          <>
-                            {ability.skills.map((skill) => {
-                              const isProficient =
-                                sheetData.skillProficiencies[skill.key];
-                              const isExpert =
-                                sheetData.skillExpertise[skill.key];
-                              const skillTotal =
-                                Math.floor((value - 10) / 2) +
-                                (isProficient ? proficiencyBonus : 0) +
-                                (isExpert ? proficiencyBonus : 0);
-                              const formatted =
-                                skillTotal >= 0
-                                  ? `+${skillTotal}`
-                                  : `${skillTotal}`;
-                              return (
-                                <div
-                                  key={skill.key}
-                                  className="flex items-center justify-between rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1"
-                                >
-                                  <span className="text-[11px] font-semibold text-purple-200">
-                                    {skill.label}
-                                  </span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[11px] font-semibold text-slate-100">
-                                      {formatted}
+                        <div className="flex items-center justify-between">
+                          <input
+                            type="number"
+                            min={1}
+                            value={rawValue}
+                            onChange={handleChange(ability.key as keyof SheetData)}
+                            className="w-16 rounded-none border-b border-purple-500/60 bg-[#0f0a1c] px-2 py-2 text-center text-sm text-slate-100"
+                          />
+                          <span className="text-lg font-semibold text-slate-100">
+                            {formatMod(value)}
+                          </span>
+                        </div>
+                        <div className="mt-2 h-px w-full bg-purple-900/60" />
+                        <div className="grid gap-2">
+                          <div className="flex items-center justify-between rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1">
+                            <span className="text-[11px] font-semibold text-purple-200">
+                              Saving Throw
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] font-semibold text-slate-100">
+                                {(() => {
+                                  const isProficient =
+                                    sheetData.savingThrowProficiencies[
+                                      ability.key
+                                    ];
+                                  const total =
+                                    Math.floor((value - 10) / 2) +
+                                    (isProficient ? proficiencyBonus : 0);
+                                  return total >= 0 ? `+${total}` : `${total}`;
+                                })()}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => toggleSavingThrow(ability.key)}
+                                className={`h-4 w-4 rounded-full border text-[10px] font-semibold transition-colors ${
+                                  sheetData.savingThrowProficiencies[ability.key]
+                                    ? "border-purple-400 bg-purple-400 text-slate-950"
+                                    : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
+                                }`}
+                                aria-label={`${ability.label} saving throw proficiency`}
+                              />
+                            </div>
+                          </div>
+                          {ability.skills.length > 0 && (
+                            <div className="h-px w-full bg-purple-900/60" />
+                          )}
+                          {ability.skills.length > 0 && (
+                            <>
+                              {ability.skills.map((skill) => {
+                                const isProficient =
+                                  sheetData.skillProficiencies[skill.key];
+                                const isExpert =
+                                  sheetData.skillExpertise[skill.key];
+                                const skillTotal =
+                                  Math.floor((value - 10) / 2) +
+                                  (isProficient ? proficiencyBonus : 0) +
+                                  (isExpert ? proficiencyBonus : 0);
+                                const formatted =
+                                  skillTotal >= 0
+                                    ? `+${skillTotal}`
+                                    : `${skillTotal}`;
+                                return (
+                                  <div
+                                    key={skill.key}
+                                    className="flex items-center justify-between rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1"
+                                  >
+                                    <span className="text-[11px] font-semibold text-purple-200">
+                                      {skill.label}
                                     </span>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        toggleSkillFlag(
-                                          "skillProficiencies",
-                                          skill.key,
-                                        )
-                                      }
-                                      className={`h-4 w-4 rounded-full border text-[10px] font-semibold transition-colors ${
-                                        sheetData.skillProficiencies[skill.key]
-                                          ? "border-purple-400 bg-purple-400 text-slate-950"
-                                          : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
-                                      }`}
-                                      aria-label={`${skill.label} proficiency`}
-                                    />
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        toggleSkillFlag(
-                                          "skillExpertise",
-                                          skill.key,
-                                        )
-                                      }
-                                      className={`h-4 w-4 rounded-full border text-[10px] font-semibold transition-colors ${
-                                        sheetData.skillExpertise[skill.key]
-                                          ? "border-purple-400 bg-purple-400 text-slate-950"
-                                          : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
-                                      }`}
-                                      aria-label={`${skill.label} expertise`}
-                                    />
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[11px] font-semibold text-slate-100">
+                                        {formatted}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          toggleSkillFlag(
+                                            "skillProficiencies",
+                                            skill.key,
+                                          )
+                                        }
+                                        className={`h-4 w-4 rounded-full border text-[10px] font-semibold transition-colors ${
+                                          sheetData.skillProficiencies[skill.key]
+                                            ? "border-purple-400 bg-purple-400 text-slate-950"
+                                            : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
+                                        }`}
+                                        aria-label={`${skill.label} proficiency`}
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          toggleSkillFlag(
+                                            "skillExpertise",
+                                            skill.key,
+                                          )
+                                        }
+                                        className={`h-4 w-4 rounded-full border text-[10px] font-semibold transition-colors ${
+                                          sheetData.skillExpertise[skill.key]
+                                            ? "border-purple-400 bg-purple-400 text-slate-950"
+                                            : "border-purple-900/60 bg-[#0f0a1c] text-slate-300 hover:border-purple-400"
+                                        }`}
+                                        aria-label={`${skill.label} expertise`}
+                                      />
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            })}
-                          </>
-                        )}
+                                );
+                              })}
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm md:col-span-12 lg:col-span-8">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="flex h-full flex-col rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Initiative
+                </div>
+                <div className="mt-2 flex flex-1 flex-col items-center justify-center gap-2">
+                  <div className="text-2xl font-semibold text-slate-100">
+                    {(() => {
+                      const total = getAbilityMod("dexterity") + sheetData.initiativeAdjust;
+                      return total >= 0 ? `+${total}` : `${total}`;
+                    })()}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => adjustNumeric("initiativeAdjust", -1)}
+                      className="h-7 w-7 rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-purple-400"
+                      aria-label="Decrease initiative"
+                    >
+                      −
+                    </button>
+                    <span
+                      className={`text-sm font-semibold ${
+                        sheetData.initiativeAdjust >= 0
+                          ? "text-emerald-300"
+                          : "text-red-300"
+                      }`}
+                    >
+                      {sheetData.initiativeAdjust >= 0
+                        ? `+${sheetData.initiativeAdjust}`
+                        : `${sheetData.initiativeAdjust}`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => adjustNumeric("initiativeAdjust", 1)}
+                      className="h-7 w-7 rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-emerald-300 transition hover:border-purple-400"
+                      aria-label="Increase initiative"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex h-full flex-col rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Speed
+                </div>
+                <div className="mt-2 flex flex-1 items-center justify-center">
+                  <input
+                    value={sheetData.speed}
+                    onChange={handleChange("speed")}
+                    className="w-24 rounded-none border-b border-purple-500/60 bg-[#0f0a1c] px-2 py-2 text-center text-sm text-slate-100"
+                  />
+                </div>
+              </div>
+
+              <div className="flex h-full flex-col rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Size
+                </div>
+                <div className="mt-2 flex flex-1 items-center justify-center">
+                  <input
+                    value={sheetData.size}
+                    onChange={handleChange("size")}
+                    className="w-24 rounded-none border-b border-purple-500/60 bg-[#0f0a1c] px-2 py-2 text-center text-sm text-slate-100"
+                  />
+                </div>
+              </div>
+
+              <div className="flex h-full flex-col rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Passive Perception
+                </div>
+                <div className="mt-2 flex flex-1 flex-col items-center justify-center gap-2">
+                  <div className="text-2xl font-semibold text-slate-100">
+                    {(() => {
+                      const total =
+                        10 +
+                        getSkillTotal("perception", "wisdom") +
+                        sheetData.passivePerceptionAdjust;
+                      return total >= 0 ? `+${total}` : `${total}`;
+                    })()}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => adjustNumeric("passivePerceptionAdjust", -1)}
+                      className="h-7 w-7 rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-purple-400"
+                      aria-label="Decrease passive perception"
+                    >
+                      −
+                    </button>
+                    <span
+                      className={`text-sm font-semibold ${
+                        sheetData.passivePerceptionAdjust >= 0
+                          ? "text-emerald-300"
+                          : "text-red-300"
+                      }`}
+                    >
+                      {sheetData.passivePerceptionAdjust >= 0
+                        ? `+${sheetData.passivePerceptionAdjust}`
+                        : `${sheetData.passivePerceptionAdjust}`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => adjustNumeric("passivePerceptionAdjust", 1)}
+                      className="h-7 w-7 rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-emerald-300 transition hover:border-purple-400"
+                      aria-label="Increase passive perception"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
