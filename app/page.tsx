@@ -918,7 +918,7 @@ export default function Home() {
               <div className="grid items-stretch gap-3 lg:grid-cols-2">
                 <div className="grid gap-3">
                 <div className="flex h-full flex-col gap-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                     Proficiency Bonus
                   </div>
                   <div className="flex flex-1 items-center justify-center text-2xl font-semibold text-slate-100">
@@ -938,7 +938,7 @@ export default function Home() {
                         key={ability.key}
                         className="flex h-full flex-col gap-2 rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
                       >
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                        <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                           {ability.label}
                         </div>
                         <div className="flex items-center justify-between">
@@ -1089,7 +1089,7 @@ export default function Home() {
                         key={ability.key}
                         className="flex h-full flex-col gap-2 rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
                       >
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                        <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                           {ability.label}
                         </div>
                         <div className="flex items-center justify-between">
@@ -1291,7 +1291,7 @@ export default function Home() {
           <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm md:col-span-12 lg:col-span-8">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex h-full flex-col rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                   Initiative
                 </div>
                 <div className="mt-2 flex flex-1 flex-col items-center justify-center gap-2">
@@ -1334,7 +1334,7 @@ export default function Home() {
               </div>
 
               <div className="flex h-full flex-col rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                   Speed
                 </div>
                 <div className="mt-2 flex flex-1 items-center justify-center">
@@ -1347,7 +1347,7 @@ export default function Home() {
               </div>
 
               <div className="flex h-full flex-col rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                   Size
                 </div>
                 <div className="mt-2 flex flex-1 items-center justify-center">
@@ -1360,7 +1360,7 @@ export default function Home() {
               </div>
 
               <div className="flex h-full flex-col rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                   Passive Perception
                 </div>
                 <div className="mt-2 flex flex-1 flex-col items-center justify-center gap-2">
