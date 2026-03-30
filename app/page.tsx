@@ -36,6 +36,8 @@ type SheetData = {
   deathFailures: number;
   classFeaturesLeft: string[];
   classFeaturesRight: string[];
+  speciesTraits: string[];
+  feats: string[];
 };
 
 type SkillKey =
@@ -156,6 +158,8 @@ const defaultSheetData: SheetData = {
   deathFailures: 0,
   classFeaturesLeft: [""],
   classFeaturesRight: [""],
+  speciesTraits: [""],
+  feats: [""],
 };
 
 const storageKey = "dnd-sheet-2024-v1";
@@ -217,6 +221,8 @@ export default function Home() {
           deathFailures: parsed.deathFailures ?? 0,
           classFeaturesLeft: parsed.classFeaturesLeft ?? [""],
           classFeaturesRight: parsed.classFeaturesRight ?? [""],
+          speciesTraits: parsed.speciesTraits ?? [""],
+          feats: parsed.feats ?? [""],
         });
       } catch {
         setSheetData(defaultSheetData);
@@ -354,31 +360,47 @@ export default function Home() {
     }));
   };
 
-  const addClassFeature = (side: "classFeaturesLeft" | "classFeaturesRight") => {
+  const addModularItem = (
+    side:
+      | "classFeaturesLeft"
+      | "classFeaturesRight"
+      | "speciesTraits"
+      | "feats",
+  ) => {
     setSheetData((prev) => ({
       ...prev,
       [side]: [...prev[side], ""],
     }));
   };
 
-  const updateClassFeature = (
-    side: "classFeaturesLeft" | "classFeaturesRight",
+  const updateModularItem = (
+    side:
+      | "classFeaturesLeft"
+      | "classFeaturesRight"
+      | "speciesTraits"
+      | "feats",
     index: number,
     value: string,
   ) => {
     setSheetData((prev) => ({
       ...prev,
-      [side]: prev[side].map((entry, idx) => (idx === index ? value : entry)),
+      [side]: prev[side].map((entry: string, idx: number) =>
+        idx === index ? value : entry,
+      ),
     }));
   };
 
-  const removeClassFeature = (
-    side: "classFeaturesLeft" | "classFeaturesRight",
+  const removeModularItem = (
+    side:
+      | "classFeaturesLeft"
+      | "classFeaturesRight"
+      | "speciesTraits"
+      | "feats",
     index: number,
   ) => {
     setSheetData((prev) => ({
       ...prev,
-      [side]: prev[side].filter((_, idx) => idx !== index),
+      [side]: prev[side].filter((_: string, idx: number) => idx !== index),
     }));
   };
 
@@ -1271,14 +1293,14 @@ export default function Home() {
                 {["classFeaturesLeft", "classFeaturesRight"].map((side) => {
                   const entries = sheetData[
                     side as "classFeaturesLeft" | "classFeaturesRight"
-                  ];
+                  ] as string[];
                   return (
                   <div
                     key={side}
                     className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
                   >
                     <div className="space-y-2">
-                      {entries.map((value, index) => (
+                      {entries.map((value: string, index: number) => (
                         <div
                           key={`${side}-${index}`}
                           className="flex items-start gap-2"
@@ -1287,8 +1309,10 @@ export default function Home() {
                             rows={1}
                             value={value}
                             onChange={(event) =>
-                              updateClassFeature(
-                                side as "classFeaturesLeft" | "classFeaturesRight",
+                              updateModularItem(
+                                side as
+                                  | "classFeaturesLeft"
+                                  | "classFeaturesRight",
                                 index,
                                 event.target.value,
                               )
@@ -1308,8 +1332,10 @@ export default function Home() {
                           <button
                             type="button"
                             onClick={() =>
-                              removeClassFeature(
-                                side as "classFeaturesLeft" | "classFeaturesRight",
+                              removeModularItem(
+                                side as
+                                  | "classFeaturesLeft"
+                                  | "classFeaturesRight",
                                 index,
                               )
                             }
@@ -1323,8 +1349,10 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() =>
-                          addClassFeature(
-                            side as "classFeaturesLeft" | "classFeaturesRight",
+                          addModularItem(
+                            side as
+                              | "classFeaturesLeft"
+                              | "classFeaturesRight",
                           )
                         }
                         className="flex w-full items-center justify-center gap-2 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-200 transition hover:border-purple-400"
@@ -1336,6 +1364,119 @@ export default function Home() {
                   </div>
                 );
                 })}
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+              <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+                <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                    Species Traits
+                  </div>
+                </div>
+                <div className="mt-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                  <div className="space-y-2">
+                    {sheetData.speciesTraits.map((value: string, index: number) => (
+                      <div
+                        key={`speciesTraits-${index}`}
+                        className="flex items-start gap-2"
+                      >
+                        <textarea
+                          rows={1}
+                          value={value}
+                          onChange={(event) =>
+                            updateModularItem(
+                              "speciesTraits",
+                              index,
+                              event.target.value,
+                            )
+                          }
+                          ref={(element) => {
+                            if (!element) return;
+                            element.style.height = "auto";
+                            element.style.height = `${element.scrollHeight}px`;
+                          }}
+                          onInput={(event) => {
+                            const target = event.currentTarget;
+                            target.style.height = "auto";
+                            target.style.height = `${target.scrollHeight}px`;
+                          }}
+                          className="w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm leading-5 text-slate-100"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeModularItem("speciesTraits", index)}
+                          className="mt-1 flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-red-300"
+                          aria-label="Remove species trait"
+                        >
+                          −
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => addModularItem("speciesTraits")}
+                      className="flex w-full items-center justify-center gap-2 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-200 transition hover:border-purple-400"
+                    >
+                      <span className="text-sm">+</span>
+                      Add Trait
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+                <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                    Feats
+                  </div>
+                </div>
+                <div className="mt-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                  <div className="space-y-2">
+                    {sheetData.feats.map((value: string, index: number) => (
+                      <div key={`feats-${index}`} className="flex items-start gap-2">
+                        <textarea
+                          rows={1}
+                          value={value}
+                          onChange={(event) =>
+                            updateModularItem(
+                              "feats",
+                              index,
+                              event.target.value,
+                            )
+                          }
+                          ref={(element) => {
+                            if (!element) return;
+                            element.style.height = "auto";
+                            element.style.height = `${element.scrollHeight}px`;
+                          }}
+                          onInput={(event) => {
+                            const target = event.currentTarget;
+                            target.style.height = "auto";
+                            target.style.height = `${target.scrollHeight}px`;
+                          }}
+                          className="w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm leading-5 text-slate-100"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeModularItem("feats", index)}
+                          className="mt-1 flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-red-300"
+                          aria-label="Remove feat"
+                        >
+                          −
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => addModularItem("feats")}
+                      className="flex w-full items-center justify-center gap-2 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-200 transition hover:border-purple-400"
+                    >
+                      <span className="text-sm">+</span>
+                      Add Feat
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
