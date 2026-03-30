@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Swal from "sweetalert2";
 
 type SheetData = {
   characterName: string;
@@ -179,6 +180,64 @@ const storageKey = "dnd-sheet-2024-v1";
 export default function Home() {
   const [sheetData, setSheetData] = useState<SheetData>(defaultSheetData);
   const [hasHydrated, setHasHydrated] = useState(false);
+  const loadInputRef = useRef<HTMLInputElement | null>(null);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const dragDepthRef = useRef(0);
+
+  const normalizeSheetData = (partial: Partial<SheetData> = {}): SheetData => ({
+    ...defaultSheetData,
+    ...partial,
+    characterName: partial.characterName ?? "",
+    background: partial.background ?? "",
+    className: partial.className ?? "",
+    species: partial.species ?? "",
+    subclass: partial.subclass ?? "",
+    level: partial.level ?? "",
+    xp: partial.xp ?? "",
+    armorClass: partial.armorClass ?? "",
+    shield: partial.shield ?? "",
+    strength: partial.strength ?? "",
+    dexterity: partial.dexterity ?? "",
+    constitution: partial.constitution ?? "",
+    intelligence: partial.intelligence ?? "",
+    wisdom: partial.wisdom ?? "",
+    charisma: partial.charisma ?? "",
+    skillProficiencies: {
+      ...defaultSkillFlags,
+      ...(partial.skillProficiencies ?? {}),
+    },
+    skillExpertise: {
+      ...defaultSkillFlags,
+      ...(partial.skillExpertise ?? {}),
+    },
+    savingThrowProficiencies: {
+      ...defaultSavingThrowFlags,
+      ...(partial.savingThrowProficiencies ?? {}),
+    },
+    initiativeAdjust: partial.initiativeAdjust ?? 0,
+    passivePerceptionAdjust: partial.passivePerceptionAdjust ?? 0,
+    speed: partial.speed ?? "",
+    size: partial.size ?? "",
+    heroicInspiration: partial.heroicInspiration ?? false,
+    weapons: partial.weapons ?? defaultWeapons,
+    hpCurrent: partial.hpCurrent ?? "",
+    hpTemp: partial.hpTemp ?? "",
+    hpMax: partial.hpMax ?? "",
+    hitDiceSpent: partial.hitDiceSpent ?? "",
+    hitDiceMax: partial.hitDiceMax ?? "",
+    deathSuccesses: partial.deathSuccesses ?? 0,
+    deathFailures: partial.deathFailures ?? 0,
+    classFeaturesLeft: partial.classFeaturesLeft ?? [""],
+    classFeaturesRight: partial.classFeaturesRight ?? [""],
+    speciesTraits: partial.speciesTraits ?? [""],
+    feats: partial.feats ?? [""],
+    armorTrainingLight: partial.armorTrainingLight ?? false,
+    armorTrainingMedium: partial.armorTrainingMedium ?? false,
+    armorTrainingHeavy: partial.armorTrainingHeavy ?? false,
+    armorTrainingShields: partial.armorTrainingShields ?? false,
+    weaponProficiencies: partial.weaponProficiencies ?? "",
+    toolProficiencies: partial.toolProficiencies ?? "",
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -188,60 +247,7 @@ export default function Home() {
     if (cached) {
       try {
         const parsed = JSON.parse(cached) as Partial<SheetData>;
-        setSheetData({
-          ...defaultSheetData,
-          ...parsed,
-          characterName: parsed.characterName ?? "",
-          background: parsed.background ?? "",
-          className: parsed.className ?? "",
-          species: parsed.species ?? "",
-          subclass: parsed.subclass ?? "",
-          level: parsed.level ?? "",
-          xp: parsed.xp ?? "",
-          armorClass: parsed.armorClass ?? "",
-          shield: parsed.shield ?? "",
-          strength: parsed.strength ?? "",
-          dexterity: parsed.dexterity ?? "",
-          constitution: parsed.constitution ?? "",
-          intelligence: parsed.intelligence ?? "",
-          wisdom: parsed.wisdom ?? "",
-          charisma: parsed.charisma ?? "",
-          skillProficiencies: {
-            ...defaultSkillFlags,
-            ...(parsed.skillProficiencies ?? {}),
-          },
-          skillExpertise: {
-            ...defaultSkillFlags,
-            ...(parsed.skillExpertise ?? {}),
-          },
-          savingThrowProficiencies: {
-            ...defaultSavingThrowFlags,
-            ...(parsed.savingThrowProficiencies ?? {}),
-          },
-          initiativeAdjust: parsed.initiativeAdjust ?? 0,
-          passivePerceptionAdjust: parsed.passivePerceptionAdjust ?? 0,
-          speed: parsed.speed ?? "",
-          size: parsed.size ?? "",
-          heroicInspiration: parsed.heroicInspiration ?? false,
-          weapons: parsed.weapons ?? defaultWeapons,
-          hpCurrent: parsed.hpCurrent ?? "",
-          hpTemp: parsed.hpTemp ?? "",
-          hpMax: parsed.hpMax ?? "",
-          hitDiceSpent: parsed.hitDiceSpent ?? "",
-          hitDiceMax: parsed.hitDiceMax ?? "",
-          deathSuccesses: parsed.deathSuccesses ?? 0,
-          deathFailures: parsed.deathFailures ?? 0,
-          classFeaturesLeft: parsed.classFeaturesLeft ?? [""],
-          classFeaturesRight: parsed.classFeaturesRight ?? [""],
-          speciesTraits: parsed.speciesTraits ?? [""],
-          feats: parsed.feats ?? [""],
-          armorTrainingLight: parsed.armorTrainingLight ?? false,
-          armorTrainingMedium: parsed.armorTrainingMedium ?? false,
-          armorTrainingHeavy: parsed.armorTrainingHeavy ?? false,
-          armorTrainingShields: parsed.armorTrainingShields ?? false,
-          weaponProficiencies: parsed.weaponProficiencies ?? "",
-          toolProficiencies: parsed.toolProficiencies ?? "",
-        });
+        setSheetData(normalizeSheetData(parsed));
       } catch {
         setSheetData(defaultSheetData);
       }
@@ -271,6 +277,106 @@ export default function Home() {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+  };
+
+  const validateJsonPayload = (payload: unknown) => {
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      return "Invalid JSON format.";
+    }
+    return null;
+  };
+
+  const confirmAndLoad = async (payload: Partial<SheetData>) => {
+    const validationError = validateJsonPayload(payload);
+    if (validationError) {
+      await Swal.fire({
+        title: "Invalid JSON",
+        text: validationError,
+        icon: "error",
+        background: "#140d24",
+        color: "#e2e8f0",
+        confirmButtonColor: "#a855f7",
+      });
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: "Load this JSON?",
+      text: "This will overwrite the current sheet data.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, load",
+      cancelButtonText: "Cancel",
+      background: "#140d24",
+      color: "#e2e8f0",
+      confirmButtonColor: "#a855f7",
+      cancelButtonColor: "#334155",
+    });
+
+    if (result.isConfirmed) {
+      setSheetData(normalizeSheetData(payload));
+      setHasHydrated(true);
+    }
+  };
+
+  const handleLoad = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text) as Partial<SheetData>;
+      await confirmAndLoad(parsed);
+    } catch {
+      await Swal.fire({
+        title: "Invalid JSON",
+        text: "We couldn't read that file. Make sure it's valid JSON.",
+        icon: "error",
+        background: "#140d24",
+        color: "#e2e8f0",
+        confirmButtonColor: "#a855f7",
+      });
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  const handleDropLoad = async (file: File) => {
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text) as Partial<SheetData>;
+      await confirmAndLoad(parsed);
+    } catch {
+      await Swal.fire({
+        title: "Invalid JSON",
+        text: "We couldn't read that file. Make sure it's valid JSON.",
+        icon: "error",
+        background: "#140d24",
+        color: "#e2e8f0",
+        confirmButtonColor: "#a855f7",
+      });
+    }
+  };
+
+  const handleNewCharacter = async () => {
+    const result = await Swal.fire({
+      title: "Start a new character?",
+      text: "This will clear the current sheet data.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, reset",
+      cancelButtonText: "Cancel",
+      background: "#140d24",
+      color: "#e2e8f0",
+      confirmButtonColor: "#a855f7",
+      cancelButtonColor: "#334155",
+    });
+
+    if (result.isConfirmed) {
+      setSheetData(defaultSheetData);
+      setHasHydrated(true);
+    }
   };
 
   const handleChange = (field: keyof SheetData) =>
@@ -525,7 +631,44 @@ export default function Home() {
   );
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#140d24] text-slate-100">
+    <div
+      className="flex min-h-screen flex-col bg-[#140d24] text-slate-100"
+      onDragEnter={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        dragDepthRef.current += 1;
+        setIsDragActive(true);
+      }}
+      onDragOver={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setIsDragActive(true);
+      }}
+      onDragLeave={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+        if (dragDepthRef.current === 0) {
+          setIsDragActive(false);
+        }
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        dragDepthRef.current = 0;
+        setIsDragActive(false);
+        const file = event.dataTransfer.files?.[0];
+        if (!file) return;
+        handleDropLoad(file);
+      }}
+    >
+      {isDragActive && (
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-[#140d24]/80">
+          <div className="rounded-xl border border-purple-400/80 bg-[#1f1635] px-6 py-4 text-center text-sm font-semibold uppercase tracking-[0.2em] text-purple-200">
+            Drop JSON to load
+          </div>
+        </div>
+      )}
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 px-4 py-5 sm:px-6 sm:py-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -534,14 +677,38 @@ export default function Home() {
               Begin with core info and expand as modules are added.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleDownload}
-            className="rounded-md bg-purple-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-purple-400 disabled:cursor-not-allowed disabled:bg-purple-900"
-            disabled={!hasHydrated}
-          >
-            Save JSON
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              ref={loadInputRef}
+              type="file"
+              accept="application/json"
+              onChange={handleLoad}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={handleNewCharacter}
+              className="rounded-md border border-purple-900/60 bg-[#0f0a1c] px-4 py-2 text-sm font-semibold text-purple-200 transition hover:border-purple-400 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={!hasHydrated}
+            >
+              New Character
+            </button>
+            <button
+              type="button"
+              onClick={() => loadInputRef.current?.click()}
+              className="rounded-md border border-purple-500/60 bg-transparent px-4 py-2 text-sm font-semibold text-purple-200 transition hover:border-purple-400"
+            >
+              Load JSON
+            </button>
+            <button
+              type="button"
+              onClick={handleDownload}
+              className="rounded-md bg-purple-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-purple-400 disabled:cursor-not-allowed disabled:bg-purple-900"
+              disabled={!hasHydrated}
+            >
+              Save JSON
+            </button>
+          </div>
         </div>
 
         <section className="grid items-stretch gap-3 md:grid-cols-12">
@@ -1580,6 +1747,15 @@ export default function Home() {
           </div>
         </section>
       </main>
+      <footer className="mx-auto w-full max-w-6xl px-4 pb-6 text-center text-xs text-purple-200/70">
+        Created by Elyeet ·{" "}
+        <a
+          href="https://github.com/Elyeet9"
+          className="text-purple-200 underline decoration-purple-500/60 underline-offset-4 hover:text-purple-100"
+        >
+          https://github.com/Elyeet9
+        </a>
+      </footer>
     </div>
   );
 }
