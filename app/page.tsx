@@ -2278,43 +2278,58 @@ export default function Home() {
       </footer>
 
       {/* Responsive Bookmark Tabs */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 lg:hidden">
+      <div className="fixed bottom-6 right-0 z-50 flex flex-col gap-3 lg:hidden">
         <button
           onClick={() => setActiveTab("info")}
-          className={`group relative flex h-14 w-14 items-center justify-center rounded-xl border-2 transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ${
+          className={`group relative flex h-12 w-16 items-center justify-center transition-all duration-300 border-l border-t border-b ${
             activeTab === "info"
-              ? "border-purple-400 bg-purple-600 text-white translate-x-0"
-              : "border-purple-900/40 bg-[#1f1635] text-purple-300 translate-x-4 hover:translate-x-0 hover:bg-[#2d224d]"
+              ? "bg-purple-600/40 text-white shadow-[-4px_0_12px_rgba(147,51,234,0.2)] border-purple-400/50"
+              : "bg-[#1f1635]/20 text-purple-300 hover:bg-[#2d224d]/40 border-purple-900/30"
           }`}
+          style={{
+            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 25% 50%)",
+          }}
           title="Character Info"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div className="ml-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
           <span className="absolute right-full mr-3 hidden rounded-md bg-purple-900 px-2 py-1 text-xs whitespace-nowrap group-hover:block">Info</span>
         </button>
 
         <button
           onClick={() => setActiveTab("combat")}
-          className={`group relative flex h-14 w-14 items-center justify-center rounded-xl border-2 transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ${
+          className={`group relative flex h-12 w-16 items-center justify-center transition-all duration-300 border-l border-t border-b ${
             activeTab === "combat"
-              ? "border-purple-400 bg-purple-600 text-white translate-x-0"
-              : "border-purple-900/40 bg-[#1f1635] text-purple-300 translate-x-4 hover:translate-x-0 hover:bg-[#2d224d]"
+              ? "bg-purple-600/40 text-white shadow-[-4px_0_12px_rgba(147,51,234,0.2)] border-purple-400/50"
+              : "bg-[#1f1635]/20 text-purple-300 hover:bg-[#2d224d]/40 border-purple-900/30"
           }`}
+          style={{
+            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 25% 50%)",
+          }}
           title="Combat"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 8.5-8.5-1.5-1.5L11.5 17.5z"/><path d="m8 14 7-7"/><path d="m11 17 7-7"/></svg>
+          <div className="ml-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 8.5-8.5-1.5-1.5L11.5 17.5z"/><path d="m8 14 7-7"/><path d="m11 17 7-7"/></svg>
+          </div>
           <span className="absolute right-full mr-3 hidden rounded-md bg-purple-900 px-2 py-1 text-xs whitespace-nowrap group-hover:block">Combat</span>
         </button>
 
         <button
           onClick={() => setActiveTab("features")}
-          className={`group relative flex h-14 w-14 items-center justify-center rounded-xl border-2 transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ${
+          className={`group relative flex h-12 w-16 items-center justify-center transition-all duration-300 border-l border-t border-b ${
             activeTab === "features"
-              ? "border-purple-400 bg-purple-600 text-white translate-x-0"
-              : "border-purple-900/40 bg-[#1f1635] text-purple-300 translate-x-4 hover:translate-x-0 hover:bg-[#2d224d]"
+              ? "bg-purple-600/40 text-white shadow-[-4px_0_12px_rgba(147,51,234,0.2)] border-purple-400/50"
+              : "bg-[#1f1635]/20 text-purple-300 hover:bg-[#2d224d]/40 border-purple-900/30"
           }`}
+          style={{
+            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 25% 50%)",
+          }}
           title="Features & Traits"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          <div className="ml-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          </div>
           <span className="absolute right-full mr-3 hidden rounded-md bg-purple-900 px-2 py-1 text-xs whitespace-nowrap group-hover:block">Features</span>
         </button>
       </div>
