@@ -690,7 +690,7 @@ export default function Home() {
         </div>
       )}
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 px-4 py-5 sm:px-6 sm:py-6">
-        <div className={`flex flex-wrap items-center justify-between gap-4 ${activeTab === "combat" || activeTab === "features" ? "hidden lg:flex" : "flex"}`}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1
               className={`text-3xl font-semibold text-slate-50 ${titleFont.className}`}
@@ -740,8 +740,8 @@ export default function Home() {
           </div>
         </div>
 
-        <section className={`flex flex-col gap-3 lg:grid lg:grid-cols-12 lg:items-center lg:gap-3 ${activeTab === "combat" || activeTab === "features" ? "hidden lg:grid" : "flex"}`}>
-          <div className="flex flex-col gap-3 md:flex-row md:items-stretch lg:contents">
+        <section className="flex flex-col gap-3 lg:grid lg:grid-cols-12 lg:items-center lg:gap-3">
+          <div className={`flex flex-col gap-3 md:flex-row md:items-stretch lg:contents ${activeTab === "combat" || activeTab === "features" ? "hidden lg:contents" : "flex"}`}>
             {/* Character Header: Main Info Box */}
             <div className="h-full flex-1 rounded-xl border border-purple-900/60 bg-[#1f1635] p-3 shadow-sm md:flex-2 lg:col-span-4 lg:h-40">
               <div className="flex flex-col gap-2">
@@ -1038,8 +1038,347 @@ export default function Home() {
           </div>
         </section>
 
-        <section className={`grid items-start gap-3 md:grid-cols-12 lg:grid-cols-12 ${activeTab === "combat" || activeTab === "features" ? "hidden lg:grid" : "grid"}`}>
-          <aside className="flex flex-col gap-3 md:col-span-12 lg:col-span-4">
+        <section className={`lg:hidden ${activeTab === "combat" ? "block" : "hidden"}`}>
+          <div className="mt-1 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+            <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                Weapons & Damage Cantrips
+              </div>
+            </div>
+
+            <div className="mt-3 grid gap-2 overflow-x-auto">
+              <div className="min-w-140 overflow-hidden rounded-lg border border-purple-900/60 divide-y divide-purple-900/60">
+                <div className="grid min-w-0 grid-cols-[2.1fr_1.6fr_2fr_2.1fr_28px] gap-0 divide-x divide-purple-900/60 bg-[#0f0a1c] text-[11px] font-semibold uppercase tracking-[0.16em] text-purple-200">
+                  <div className="flex min-w-0 items-center px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                    Name
+                  </div>
+                  <div className="flex min-w-0 items-center px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                    Atk Bonus / DC
+                  </div>
+                  <div className="flex min-w-0 items-center px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                    Damage & Type
+                  </div>
+                  <div className="flex min-w-0 items-center px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                    Notes
+                  </div>
+                  <div />
+                </div>
+
+                {sheetData.weapons.length === 0 && (
+                  <div className="rounded-lg border border-dashed border-purple-900/60 bg-[#140d24] px-3 py-6 text-center text-xs text-purple-200">
+                    Add entries to track weapons and cantrips.
+                  </div>
+                )}
+
+                {sheetData.weapons.map((entry) => (
+                  <div
+                    key={`mobile-${entry.id}`}
+                    className="grid min-w-0 grid-cols-[2.1fr_1.6fr_2fr_2.1fr_28px] gap-0 divide-x divide-purple-900/60 bg-[#0f0a1c]"
+                  >
+                    <textarea
+                      rows={1}
+                      value={entry.name}
+                      onChange={(event) =>
+                        updateWeaponEntry(entry.id, "name", event.target.value)
+                      }
+                      ref={(element) => {
+                        if (!element) return;
+                        element.style.height = "auto";
+                        element.style.height = `${element.scrollHeight}px`;
+                      }}
+                      onInput={(event) => {
+                        const target = event.currentTarget;
+                        target.style.height = "auto";
+                        target.style.height = `${target.scrollHeight}px`;
+                      }}
+                      className="min-w-0 w-full resize-none overflow-hidden rounded-none bg-transparent px-2 py-1 text-sm leading-5 text-slate-100"
+                    />
+                    <textarea
+                      rows={1}
+                      value={entry.attackBonus}
+                      onChange={(event) =>
+                        updateWeaponEntry(
+                          entry.id,
+                          "attackBonus",
+                          event.target.value,
+                        )
+                      }
+                      ref={(element) => {
+                        if (!element) return;
+                        element.style.height = "auto";
+                        element.style.height = `${element.scrollHeight}px`;
+                      }}
+                      onInput={(event) => {
+                        const target = event.currentTarget;
+                        target.style.height = "auto";
+                        target.style.height = `${target.scrollHeight}px`;
+                      }}
+                      className="min-w-0 w-full resize-none overflow-hidden rounded-none bg-transparent px-2 py-1 text-sm leading-5 text-slate-100"
+                    />
+                    <textarea
+                      rows={1}
+                      value={entry.damageType}
+                      onChange={(event) =>
+                        updateWeaponEntry(
+                          entry.id,
+                          "damageType",
+                          event.target.value,
+                        )
+                      }
+                      ref={(element) => {
+                        if (!element) return;
+                        element.style.height = "auto";
+                        element.style.height = `${element.scrollHeight}px`;
+                      }}
+                      onInput={(event) => {
+                        const target = event.currentTarget;
+                        target.style.height = "auto";
+                        target.style.height = `${target.scrollHeight}px`;
+                      }}
+                      className="min-w-0 w-full resize-none overflow-hidden rounded-none bg-transparent px-2 py-1 text-sm leading-5 text-slate-100"
+                    />
+                    <textarea
+                      rows={1}
+                      value={entry.notes}
+                      onChange={(event) =>
+                        updateWeaponEntry(entry.id, "notes", event.target.value)
+                      }
+                      ref={(element) => {
+                        if (!element) return;
+                        element.style.height = "auto";
+                        element.style.height = `${element.scrollHeight}px`;
+                      }}
+                      onInput={(event) => {
+                        const target = event.currentTarget;
+                        target.style.height = "auto";
+                        target.style.height = `${target.scrollHeight}px`;
+                      }}
+                      className="min-w-0 w-full resize-none overflow-hidden rounded-none bg-transparent px-2 py-1 text-sm leading-5 text-slate-100"
+                    />
+                    <div className="flex items-center justify-center bg-transparent">
+                      <button
+                        type="button"
+                        onClick={() => removeWeaponEntry(entry.id)}
+                        className="flex h-9 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-red-300"
+                        aria-label="Remove weapon"
+                      >
+                        −
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addWeaponEntry}
+                  className="flex w-full items-center justify-center gap-2 bg-[#140d24] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-200 transition hover:bg-[#1a1130]"
+                  aria-label="Add weapon"
+                >
+                  <span className="text-sm">+</span>
+                  Add Weapon
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className={`lg:hidden ${activeTab === "features" ? "block" : "hidden"}`}>
+          <div className="mt-1 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+            <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                Class Features
+              </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {["classFeaturesLeft", "classFeaturesRight"].map((side) => {
+                const entries = sheetData[
+                  side as "classFeaturesLeft" | "classFeaturesRight"
+                ] as string[];
+                return (
+                  <div
+                    key={`mobile-${side}`}
+                    className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
+                  >
+                    <div className="space-y-2">
+                      {entries.map((value: string, index: number) => (
+                        <div
+                          key={`mobile-${side}-${index}`}
+                          className="flex items-start gap-2"
+                        >
+                          <textarea
+                            rows={1}
+                            value={value}
+                            onChange={(event) =>
+                              updateModularItem(
+                                side as
+                                  | "classFeaturesLeft"
+                                  | "classFeaturesRight",
+                                index,
+                                event.target.value,
+                              )
+                            }
+                            ref={(element) => {
+                              if (!element) return;
+                              element.style.height = "auto";
+                              element.style.height = `${element.scrollHeight}px`;
+                            }}
+                            onInput={(event) => {
+                              const target = event.currentTarget;
+                              target.style.height = "auto";
+                              target.style.height = `${target.scrollHeight}px`;
+                            }}
+                            className="w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm leading-5 text-slate-100"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removeModularItem(
+                                side as
+                                  | "classFeaturesLeft"
+                                  | "classFeaturesRight",
+                                index,
+                              )
+                            }
+                            className="mt-1 flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-red-300"
+                            aria-label="Remove class feature"
+                          >
+                            −
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addModularItem(
+                            side as
+                              | "classFeaturesLeft"
+                              | "classFeaturesRight",
+                          )
+                        }
+                        className="flex w-full items-center justify-center gap-2 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-200 transition hover:border-purple-400"
+                      >
+                        <span className="text-sm">+</span>
+                        Add Feature
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-3 grid grid-cols-1 gap-3">
+            <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+              <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Species Traits
+                </div>
+              </div>
+              <div className="mt-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                <div className="space-y-2">
+                  {sheetData.speciesTraits.map((value: string, index: number) => (
+                    <div
+                      key={`mobile-speciesTraits-${index}`}
+                      className="flex items-start gap-2"
+                    >
+                      <textarea
+                        rows={1}
+                        value={value}
+                        onChange={(event) =>
+                          updateModularItem(
+                            "speciesTraits",
+                            index,
+                            event.target.value,
+                          )
+                        }
+                        ref={(element) => {
+                          if (!element) return;
+                          element.style.height = "auto";
+                          element.style.height = `${element.scrollHeight}px`;
+                        }}
+                        onInput={(event) => {
+                          const target = event.currentTarget;
+                          target.style.height = "auto";
+                          target.style.height = `${target.scrollHeight}px`;
+                        }}
+                        className="w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm leading-5 text-slate-100"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeModularItem("speciesTraits", index)}
+                        className="mt-1 flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-red-300"
+                        aria-label="Remove species trait"
+                      >
+                        −
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => addModularItem("speciesTraits")}
+                    className="flex w-full items-center justify-center gap-2 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-200 transition hover:border-purple-400"
+                  >
+                    <span className="text-sm">+</span>
+                    Add Trait
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+              <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Feats
+                </div>
+              </div>
+              <div className="mt-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                <div className="space-y-2">
+                  {sheetData.feats.map((value: string, index: number) => (
+                    <div key={`mobile-feats-${index}`} className="flex items-start gap-2">
+                      <textarea
+                        rows={1}
+                        value={value}
+                        onChange={(event) =>
+                          updateModularItem("feats", index, event.target.value)
+                        }
+                        ref={(element) => {
+                          if (!element) return;
+                          element.style.height = "auto";
+                          element.style.height = `${element.scrollHeight}px`;
+                        }}
+                        onInput={(event) => {
+                          const target = event.currentTarget;
+                          target.style.height = "auto";
+                          target.style.height = `${target.scrollHeight}px`;
+                        }}
+                        className="w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm leading-5 text-slate-100"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeModularItem("feats", index)}
+                        className="mt-1 flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-red-300"
+                        aria-label="Remove feat"
+                      >
+                        −
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => addModularItem("feats")}
+                    className="flex w-full items-center justify-center gap-2 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-200 transition hover:border-purple-400"
+                  >
+                    <span className="text-sm">+</span>
+                    Add Feat
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="grid items-start gap-3 md:grid-cols-12 lg:grid-cols-12">
+          <aside className={`flex flex-col gap-3 md:col-span-12 lg:col-span-4 ${activeTab === "info" ? "flex" : "hidden lg:flex"}`}>
             <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm">
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-2">
                             <div className="flex flex-col gap-3">
@@ -1565,7 +1904,7 @@ export default function Home() {
             <div className={`mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 ${activeTab === "info" || activeTab === "features" ? "hidden lg:block" : "block"}`}>
               <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
-                  Combat Action: Weapons & Damage Cantrips
+                  Weapons & Damage Cantrips
                 </div>
               </div>
 
