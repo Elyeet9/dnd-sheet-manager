@@ -1077,7 +1077,8 @@ export default function Home() {
                     Name
                   </div>
                   <div className="flex min-w-0 items-center px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis">
-                    Atk Bonus / DC
+                    <span className="md:hidden">Atk / DC</span>
+                    <span className="hidden md:inline">Atk Bonus / DC</span>
                   </div>
                   <div className="flex min-w-0 items-center px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis">
                     Damage & Type
@@ -1939,7 +1940,8 @@ export default function Home() {
                       Name
                     </div>
                     <div className="flex min-w-0 items-center px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis">
-                      Atk Bonus / DC
+                      <span className="sm:hidden">Atk / DC</span>
+                      <span className="hidden sm:inline">Atk Bonus / DC</span>
                     </div>
                     <div className="flex min-w-0 items-center px-2 py-1 whitespace-nowrap overflow-hidden text-ellipsis">
                       Damage & Type
@@ -2278,13 +2280,13 @@ export default function Home() {
       </footer>
 
       {/* Responsive Bookmark Tabs */}
-      <div className="fixed bottom-6 right-0 z-50 flex flex-col gap-3 lg:hidden">
+      <div className="fixed bottom-6 right-0 z-50 flex flex-col gap-3 lg:hidden pointer-events-none">
         <button
           onClick={() => setActiveTab("info")}
-          className={`group relative flex h-12 w-16 items-center justify-center transition-all duration-300 border-l border-t border-b ${
+          className={`group relative flex h-12 w-16 items-center justify-center transition-all duration-300 border-l border-t border-b pointer-events-auto ${
             activeTab === "info"
-              ? "bg-purple-600/40 text-white shadow-[-4px_0_12px_rgba(147,51,234,0.2)] border-purple-400/50"
-              : "bg-[#1f1635]/20 text-purple-300 hover:bg-[#2d224d]/40 border-purple-900/30"
+              ? "bg-purple-600/40 text-white shadow-[-4px_0_12px_rgba(147,51,234,0.2)] border-purple-400/80 translate-x-0"
+              : "bg-[#1f1635]/40 text-purple-300 hover:bg-[#2d224d]/40 border-purple-900/80 translate-x-10 hover:translate-x-4"
           }`}
           style={{
             clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 25% 50%)",
@@ -2299,10 +2301,10 @@ export default function Home() {
 
         <button
           onClick={() => setActiveTab("combat")}
-          className={`group relative flex h-12 w-16 items-center justify-center transition-all duration-300 border-l border-t border-b ${
+          className={`group relative flex h-12 w-16 items-center justify-center transition-all duration-300 border-l border-t border-b pointer-events-auto ${
             activeTab === "combat"
-              ? "bg-purple-600/40 text-white shadow-[-4px_0_12px_rgba(147,51,234,0.2)] border-purple-400/50"
-              : "bg-[#1f1635]/20 text-purple-300 hover:bg-[#2d224d]/40 border-purple-900/30"
+              ? "bg-purple-600/40 text-white shadow-[-4px_0_12px_rgba(147,51,234,0.2)] border-purple-400/80 translate-x-0"
+              : "bg-[#1f1635]/40 text-purple-300 hover:bg-[#2d224d]/40 border-purple-900/80 translate-x-10 hover:translate-x-4"
           }`}
           style={{
             clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 25% 50%)",
@@ -2317,10 +2319,10 @@ export default function Home() {
 
         <button
           onClick={() => setActiveTab("features")}
-          className={`group relative flex h-12 w-16 items-center justify-center transition-all duration-300 border-l border-t border-b ${
+          className={`group relative flex h-12 w-16 items-center justify-center transition-all duration-300 border-l border-t border-b pointer-events-auto ${
             activeTab === "features"
-              ? "bg-purple-600/40 text-white shadow-[-4px_0_12px_rgba(147,51,234,0.2)] border-purple-400/50"
-              : "bg-[#1f1635]/20 text-purple-300 hover:bg-[#2d224d]/40 border-purple-900/30"
+              ? "bg-purple-600/40 text-white shadow-[-4px_0_12px_rgba(147,51,234,0.2)] border-purple-400/80 translate-x-0"
+              : "bg-[#1f1635]/40 text-purple-300 hover:bg-[#2d224d]/40 border-purple-900/80 translate-x-10 hover:translate-x-4"
           }`}
           style={{
             clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 25% 50%)",
