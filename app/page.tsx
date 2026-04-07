@@ -44,6 +44,7 @@ type SheetData = {
   armorTrainingMedium: boolean;
   armorTrainingHeavy: boolean;
   armorTrainingShields: boolean;
+  jackOfAllTrades: boolean;
   weaponProficiencies: string;
   toolProficiencies: string;
   spellcastingAbility: string;
@@ -244,6 +245,7 @@ const defaultSheetData: SheetData = {
   armorTrainingMedium: false,
   armorTrainingHeavy: false,
   armorTrainingShields: false,
+  jackOfAllTrades: false,
   weaponProficiencies: "",
   toolProficiencies: "",
   spellcastingAbility: "",
@@ -349,6 +351,7 @@ export default function Home() {
     armorTrainingMedium: partial.armorTrainingMedium ?? false,
     armorTrainingHeavy: partial.armorTrainingHeavy ?? false,
     armorTrainingShields: partial.armorTrainingShields ?? false,
+    jackOfAllTrades: partial.jackOfAllTrades ?? false,
     weaponProficiencies: partial.weaponProficiencies ?? "",
     toolProficiencies: partial.toolProficiencies ?? "",
     spellcastingAbility: abilityKeys.includes(
@@ -643,10 +646,20 @@ export default function Home() {
   const getSkillTotal = (skillKey: SkillKey, abilityKey: AbilityKey) => {
     const isProficient = sheetData.skillProficiencies[skillKey];
     const isExpert = sheetData.skillExpertise[skillKey];
+    const getsJackOfAllTrades = !isProficient && !isExpert;
     return (
       getAbilityMod(abilityKey) +
       (isProficient ? proficiencyBonus : 0) +
-      (isExpert ? proficiencyBonus : 0)
+      (isExpert ? proficiencyBonus : 0) +
+      (getsJackOfAllTrades ? jackOfAllTradesBonus : 0)
+    );
+  };
+
+  const getSavingThrowTotal = (abilityKey: AbilityKey) => {
+    const isProficient = sheetData.savingThrowProficiencies[abilityKey];
+    return (
+      getAbilityMod(abilityKey) +
+      (isProficient ? proficiencyBonus : jackOfAllTradesBonus)
     );
   };
 
@@ -786,6 +799,9 @@ export default function Home() {
           : levelValue >= 5
             ? 3
             : 2;
+  const jackOfAllTradesBonus = sheetData.jackOfAllTrades
+    ? Math.floor(proficiencyBonus / 2)
+    : 0;
 
   const spellcastingAbilityKey = abilityKeys.includes(
     sheetData.spellcastingAbility as AbilityKey,
@@ -1753,13 +1769,9 @@ export default function Home() {
                                           <div className="flex items-center gap-1.5">
                                             <span className="text-[10px] font-semibold text-slate-100">
                                               {(() => {
-                                                const isProficient =
-                                                  sheetData.savingThrowProficiencies[
-                                                    ability.key
-                                                  ];
-                                                const total =
-                                                  Math.floor((value - 10) / 2) +
-                                                  (isProficient ? proficiencyBonus : 0);
+                                                const total = getSavingThrowTotal(
+                                                  ability.key,
+                                                );
                                                 return total >= 0 ? `+${total}` : `${total}`;
                                               })()}
                                             </span>
@@ -1786,7 +1798,10 @@ export default function Home() {
                                           const skillTotal =
                                             Math.floor((value - 10) / 2) +
                                             (isProficient ? proficiencyBonus : 0) +
-                                            (isExpert ? proficiencyBonus : 0);
+                                            (isExpert ? proficiencyBonus : 0) +
+                                            (!isProficient && !isExpert
+                                              ? jackOfAllTradesBonus
+                                              : 0);
                                           const formatted =
                                             skillTotal >= 0
                                               ? `+${skillTotal}`
@@ -1919,13 +1934,9 @@ export default function Home() {
                               <div className="flex items-center gap-1.5">
                                 <span className="text-[10px] font-semibold text-slate-100">
                                   {(() => {
-                                    const isProficient =
-                                      sheetData.savingThrowProficiencies[
-                                        ability.key
-                                      ];
-                                    const total =
-                                      Math.floor((value - 10) / 2) +
-                                      (isProficient ? proficiencyBonus : 0);
+                                    const total = getSavingThrowTotal(
+                                      ability.key,
+                                    );
                                     return total >= 0 ? `+${total}` : `${total}`;
                                   })()}
                                 </span>
@@ -1952,7 +1963,10 @@ export default function Home() {
                               const skillTotal =
                                 Math.floor((value - 10) / 2) +
                                 (isProficient ? proficiencyBonus : 0) +
-                                (isExpert ? proficiencyBonus : 0);
+                                (isExpert ? proficiencyBonus : 0) +
+                                (!isProficient && !isExpert
+                                  ? jackOfAllTradesBonus
+                                  : 0);
                               const formatted =
                                 skillTotal >= 0
                                   ? `+${skillTotal}`
@@ -2007,6 +2021,27 @@ export default function Home() {
                         </div>
                       );
                     })}
+                </div>
+
+                <div className="col-span-2 flex items-center justify-center gap-3 rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                    Jack of All Trades
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSheetData((prev) => ({
+                        ...prev,
+                        jackOfAllTrades: !prev.jackOfAllTrades,
+                      }))
+                    }
+                    className={`h-4 w-4 rotate-45 border-2 transition-all ${
+                      sheetData.jackOfAllTrades
+                        ? "border-none bg-purple-400 [box-shadow:0_0_8px_rgba(168,85,247,0.5)]"
+                        : "border-purple-500/40 bg-transparent"
+                    }`}
+                    aria-label="Toggle Jack of All Trades"
+                  />
                 </div>
               </div>
             </div>
