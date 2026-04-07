@@ -901,7 +901,19 @@ export default function Home() {
                 </div>
                 <div className="flex flex-1 items-stretch divide-x divide-purple-900/40">
                   <div className="flex flex-[1.5] flex-col items-center justify-center p-2 pt-8 pb-8 relative">
-                    <div className="absolute top-2 flex gap-1.5">
+                    <div className="absolute top-2 flex gap-1.5 md:hidden">
+                      {[1, 5].map((val) => (
+                        <button
+                          key={`hp-plus-mobile-${val}`}
+                          type="button"
+                          onClick={() => setSheetData(prev => ({ ...prev, hpCurrent: String(toNumber(prev.hpCurrent) + val) }))}
+                          className="flex h-6 w-8 items-center justify-center rounded-md border border-purple-500/30 bg-purple-900/40 text-[10px] font-bold text-purple-200 transition-all hover:border-purple-400 hover:bg-purple-800/60 active:scale-95 shadow-sm"
+                        >
+                          +{val}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="absolute top-2 hidden gap-1.5 md:flex">
                       {[1, 5, 10].map((val) => (
                         <button
                           key={`hp-plus-${val}`}
@@ -923,7 +935,19 @@ export default function Home() {
                     <label className="mt-1 text-[9px] font-bold uppercase tracking-widest text-purple-300/80">
                       Current
                     </label>
-                    <div className="absolute bottom-2 flex gap-1.5">
+                    <div className="absolute bottom-2 flex gap-1.5 md:hidden">
+                      {[1, 5].map((val) => (
+                        <button
+                          key={`hp-minus-mobile-${val}`}
+                          type="button"
+                          onClick={() => setSheetData(prev => ({ ...prev, hpCurrent: String(Math.max(0, toNumber(prev.hpCurrent) - val)) }))}
+                          className="flex h-6 w-8 items-center justify-center rounded-md border border-purple-500/30 bg-purple-900/40 text-[10px] font-bold text-purple-200 transition-all hover:border-purple-400 hover:bg-purple-800/60 active:scale-95 shadow-sm"
+                        >
+                          -{val}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="absolute bottom-2 hidden gap-1.5 md:flex">
                       {[1, 5, 10].map((val) => (
                         <button
                           key={`hp-minus-${val}`}
