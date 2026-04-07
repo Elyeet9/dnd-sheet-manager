@@ -748,7 +748,6 @@ export default function Home() {
                   value={sheetData.characterName}
                   onChange={handleChange("characterName")}
                   className="w-full rounded-none border-b border-purple-500/60 bg-transparent px-2 py-1 text-base font-semibold text-slate-100 outline-none"
-                  placeholder="Character Name"
                 />
                 <label className="mt-1 text-[9px] font-bold uppercase tracking-wider text-purple-300/80">
                   Character Name
@@ -896,7 +895,19 @@ export default function Home() {
                   Hit Points
                 </div>
                 <div className="flex flex-1 items-stretch divide-x divide-purple-900/40">
-                  <div className="flex flex-[1.5] flex-col items-center justify-center p-2">
+                  <div className="flex flex-[1.5] flex-col items-center justify-center p-2 pt-8 pb-8 relative">
+                    <div className="absolute top-2 flex gap-1.5">
+                      {[1, 5, 10].map((val) => (
+                        <button
+                          key={`hp-plus-${val}`}
+                          type="button"
+                          onClick={() => setSheetData(prev => ({ ...prev, hpCurrent: String(toNumber(prev.hpCurrent) + val) }))}
+                          className="flex h-6 w-8 items-center justify-center rounded-md border border-purple-500/30 bg-purple-900/40 text-[10px] font-bold text-purple-200 transition-all hover:border-purple-400 hover:bg-purple-800/60 active:scale-95 shadow-sm"
+                        >
+                          +{val}
+                        </button>
+                      ))}
+                    </div>
                     <input
                       type="number"
                       min={0}
@@ -907,6 +918,18 @@ export default function Home() {
                     <label className="mt-1 text-[9px] font-bold uppercase tracking-widest text-purple-300/80">
                       Current
                     </label>
+                    <div className="absolute bottom-2 flex gap-1.5">
+                      {[1, 5, 10].map((val) => (
+                        <button
+                          key={`hp-minus-${val}`}
+                          type="button"
+                          onClick={() => setSheetData(prev => ({ ...prev, hpCurrent: String(Math.max(0, toNumber(prev.hpCurrent) - val)) }))}
+                          className="flex h-6 w-8 items-center justify-center rounded-md border border-purple-500/30 bg-purple-900/40 text-[10px] font-bold text-purple-200 transition-all hover:border-purple-400 hover:bg-purple-800/60 active:scale-95 shadow-sm"
+                        >
+                          -{val}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <div className="flex flex-1 flex-col divide-y divide-purple-900/40">
                     <div className="flex flex-1 flex-col items-center justify-center p-1">
@@ -939,7 +962,7 @@ export default function Home() {
 
               {/* Hit Dice Sub-box */}
               <div className="col-span-3 flex h-full flex-col overflow-hidden rounded-lg border border-purple-900/60 bg-[#140d24]">
-                <div className="bg-purple-900/20 py-1 text-center text-[10px] font-bold uppercase tracking-[0.1em] text-purple-200">
+                <div className="bg-purple-900/20 py-1 text-center text-[10px] font-bold uppercase tracking-widest text-purple-200">
                   Hit Dice
                 </div>
                 <div className="flex flex-1 flex-col divide-y divide-purple-900/40 p-1">
@@ -972,7 +995,7 @@ export default function Home() {
 
               {/* Death Saves Sub-box */}
               <div className="col-span-3 flex h-full flex-col overflow-hidden rounded-lg border border-purple-900/60 bg-[#140d24]">
-                <div className="bg-purple-900/20 py-1 text-center text-[10px] font-bold uppercase tracking-[0.1em] text-purple-200">
+                <div className="bg-purple-900/20 py-1 text-center text-[10px] font-bold uppercase tracking-widest text-purple-200">
                   Death Saves
                 </div>
                 <div className="flex flex-1 flex-col items-center justify-around py-1">
@@ -1500,7 +1523,7 @@ export default function Home() {
                         10 +
                         getSkillTotal("perception", "wisdom") +
                         sheetData.passivePerceptionAdjust;
-                      return total >= 0 ? `+${total}` : `${total}`;
+                      return total >= 0 ? `${total}` : `${total}`;
                     })()}
                   </div>
                   <div className="flex items-center gap-2">
