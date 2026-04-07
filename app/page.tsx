@@ -144,16 +144,16 @@ const defaultSheetData: SheetData = {
   className: "",
   species: "",
   subclass: "",
-  level: "",
+  level: "1",
   xp: "",
   armorClass: "",
   shield: "",
-  strength: "",
-  dexterity: "",
-  constitution: "",
-  intelligence: "",
-  wisdom: "",
-  charisma: "",
+  strength: "10",
+  dexterity: "10",
+  constitution: "10",
+  intelligence: "10",
+  wisdom: "10",
+  charisma: "10",
   skillProficiencies: defaultSkillFlags,
   skillExpertise: defaultSkillFlags,
   savingThrowProficiencies: defaultSavingThrowFlags,
@@ -199,16 +199,16 @@ export default function Home() {
     className: partial.className ?? "",
     species: partial.species ?? "",
     subclass: partial.subclass ?? "",
-    level: partial.level ?? "",
+    level: partial.level ?? "1",
     xp: partial.xp ?? "",
     armorClass: partial.armorClass ?? "",
     shield: partial.shield ?? "",
-    strength: partial.strength ?? "",
-    dexterity: partial.dexterity ?? "",
-    constitution: partial.constitution ?? "",
-    intelligence: partial.intelligence ?? "",
-    wisdom: partial.wisdom ?? "",
-    charisma: partial.charisma ?? "",
+    strength: partial.strength ?? "10",
+    dexterity: partial.dexterity ?? "10",
+    constitution: partial.constitution ?? "10",
+    intelligence: partial.intelligence ?? "10",
+    wisdom: partial.wisdom ?? "10",
+    charisma: partial.charisma ?? "10",
     skillProficiencies: {
       ...defaultSkillFlags,
       ...(partial.skillProficiencies ?? {}),
@@ -455,6 +455,18 @@ export default function Home() {
       ...prev,
       [field]: prev[field] + delta,
     }));
+  };
+
+  const adjustAbilityScore = (key: AbilityKey, delta: number) => {
+    setSheetData((prev) => {
+      const current = Number.parseInt(prev[key], 10);
+      const safeCurrent = Number.isNaN(current) ? 10 : current;
+      const next = Math.max(1, safeCurrent + delta);
+      return {
+        ...prev,
+        [key]: String(next),
+      };
+    });
   };
 
   const addWeaponEntry = () => {
@@ -957,14 +969,32 @@ export default function Home() {
                         <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                           {ability.label}
                         </div>
-                        <div className="flex items-center justify-between">
-                          <input
-                            type="number"
-                            min={1}
-                            value={rawValue}
-                            onChange={handleChange(ability.key as keyof SheetData)}
-                            className="w-16 rounded-none border-b border-purple-500/60 bg-[#0f0a1c] px-2 py-2 text-center text-sm text-slate-100"
-                          />
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => adjustAbilityScore(ability.key, -1)}
+                              className="h-8 w-8 rounded-md border border-purple-900/60 bg-[#0f0a1c] text-base font-semibold text-slate-200 transition hover:border-purple-400"
+                              aria-label={`Decrease ${ability.label}`}
+                            >
+                              -
+                            </button>
+                            <input
+                              type="number"
+                              min={1}
+                              value={rawValue}
+                              onChange={handleChange(ability.key as keyof SheetData)}
+                              className="w-14 rounded-none border-b border-purple-500/60 bg-[#0f0a1c] px-2 py-2 text-center text-sm text-slate-100"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => adjustAbilityScore(ability.key, 1)}
+                              className="h-8 w-8 rounded-md border border-purple-900/60 bg-[#0f0a1c] text-base font-semibold text-slate-200 transition hover:border-purple-400"
+                              aria-label={`Increase ${ability.label}`}
+                            >
+                              +
+                            </button>
+                          </div>
                           <span className="text-lg font-semibold text-slate-100">
                             {formatMod(value)}
                           </span>
@@ -1108,14 +1138,32 @@ export default function Home() {
                         <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                           {ability.label}
                         </div>
-                        <div className="flex items-center justify-between">
-                          <input
-                            type="number"
-                            min={1}
-                            value={rawValue}
-                            onChange={handleChange(ability.key as keyof SheetData)}
-                            className="w-16 rounded-none border-b border-purple-500/60 bg-[#0f0a1c] px-2 py-2 text-center text-sm text-slate-100"
-                          />
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => adjustAbilityScore(ability.key, -1)}
+                              className="h-8 w-8 rounded-md border border-purple-900/60 bg-[#0f0a1c] text-base font-semibold text-slate-200 transition hover:border-purple-400"
+                              aria-label={`Decrease ${ability.label}`}
+                            >
+                              -
+                            </button>
+                            <input
+                              type="number"
+                              min={1}
+                              value={rawValue}
+                              onChange={handleChange(ability.key as keyof SheetData)}
+                              className="w-14 rounded-none border-b border-purple-500/60 bg-[#0f0a1c] px-2 py-2 text-center text-sm text-slate-100"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => adjustAbilityScore(ability.key, 1)}
+                              className="h-8 w-8 rounded-md border border-purple-900/60 bg-[#0f0a1c] text-base font-semibold text-slate-200 transition hover:border-purple-400"
+                              aria-label={`Increase ${ability.label}`}
+                            >
+                              +
+                            </button>
+                          </div>
                           <span className="text-lg font-semibold text-slate-100">
                             {formatMod(value)}
                           </span>
