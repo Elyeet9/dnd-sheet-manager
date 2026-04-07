@@ -50,6 +50,9 @@ type SheetData = {
   spellcastingModifier: string;
   spellSaveDc: string;
   spellAttackBonus: string;
+  spellSaveDcAdjust: number;
+  spellAttackBonusAdjust: number;
+  appearanceImage: string;
   appearance: string;
   backstoryPersonality: string;
   alignment: string;
@@ -71,23 +74,14 @@ type SheetData = {
   spellsLevel7: string[];
   spellsLevel8: string[];
   spellsLevel9: string[];
-  spellSlotsLevel1Total: string;
   spellSlotsLevel1Expended: string;
-  spellSlotsLevel2Total: string;
   spellSlotsLevel2Expended: string;
-  spellSlotsLevel3Total: string;
   spellSlotsLevel3Expended: string;
-  spellSlotsLevel4Total: string;
   spellSlotsLevel4Expended: string;
-  spellSlotsLevel5Total: string;
   spellSlotsLevel5Expended: string;
-  spellSlotsLevel6Total: string;
   spellSlotsLevel6Expended: string;
-  spellSlotsLevel7Total: string;
   spellSlotsLevel7Expended: string;
-  spellSlotsLevel8Total: string;
   spellSlotsLevel8Expended: string;
-  spellSlotsLevel9Total: string;
   spellSlotsLevel9Expended: string;
 };
 
@@ -188,6 +182,15 @@ const abilityKeys: AbilityKey[] = [
   "charisma",
 ];
 
+const abilityLabels: Record<AbilityKey, string> = {
+  strength: "Strength",
+  dexterity: "Dexterity",
+  constitution: "Constitution",
+  intelligence: "Intelligence",
+  wisdom: "Wisdom",
+  charisma: "Charisma",
+};
+
 const defaultSavingThrowFlags = abilityKeys.reduce<Record<AbilityKey, boolean>>(
   (accumulator, key) => ({ ...accumulator, [key]: false }),
   {} as Record<AbilityKey, boolean>,
@@ -247,6 +250,9 @@ const defaultSheetData: SheetData = {
   spellcastingModifier: "",
   spellSaveDc: "",
   spellAttackBonus: "",
+  spellSaveDcAdjust: 0,
+  spellAttackBonusAdjust: 0,
+  appearanceImage: "",
   appearance: "",
   backstoryPersonality: "",
   alignment: "",
@@ -258,33 +264,24 @@ const defaultSheetData: SheetData = {
   coinEp: "",
   coinGp: "",
   coinPp: "",
-  cantrips: [""],
-  spellsLevel1: [""],
-  spellsLevel2: [""],
-  spellsLevel3: [""],
-  spellsLevel4: [""],
-  spellsLevel5: [""],
-  spellsLevel6: [""],
-  spellsLevel7: [""],
-  spellsLevel8: [""],
-  spellsLevel9: [""],
-  spellSlotsLevel1Total: "",
+  cantrips: [],
+  spellsLevel1: [],
+  spellsLevel2: [],
+  spellsLevel3: [],
+  spellsLevel4: [],
+  spellsLevel5: [],
+  spellsLevel6: [],
+  spellsLevel7: [],
+  spellsLevel8: [],
+  spellsLevel9: [],
   spellSlotsLevel1Expended: "",
-  spellSlotsLevel2Total: "",
   spellSlotsLevel2Expended: "",
-  spellSlotsLevel3Total: "",
   spellSlotsLevel3Expended: "",
-  spellSlotsLevel4Total: "",
   spellSlotsLevel4Expended: "",
-  spellSlotsLevel5Total: "",
   spellSlotsLevel5Expended: "",
-  spellSlotsLevel6Total: "",
   spellSlotsLevel6Expended: "",
-  spellSlotsLevel7Total: "",
   spellSlotsLevel7Expended: "",
-  spellSlotsLevel8Total: "",
   spellSlotsLevel8Expended: "",
-  spellSlotsLevel9Total: "",
   spellSlotsLevel9Expended: "",
 };
 
@@ -297,6 +294,7 @@ export default function Home() {
   const [hasHydrated, setHasHydrated] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const loadInputRef = useRef<HTMLInputElement | null>(null);
+  const appearanceImageInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const dragDepthRef = useRef(0);
 
@@ -353,10 +351,17 @@ export default function Home() {
     armorTrainingShields: partial.armorTrainingShields ?? false,
     weaponProficiencies: partial.weaponProficiencies ?? "",
     toolProficiencies: partial.toolProficiencies ?? "",
-    spellcastingAbility: partial.spellcastingAbility ?? "",
+    spellcastingAbility: abilityKeys.includes(
+      (partial.spellcastingAbility ?? "").toLowerCase() as AbilityKey,
+    )
+      ? (partial.spellcastingAbility ?? "").toLowerCase()
+      : "",
     spellcastingModifier: partial.spellcastingModifier ?? "",
     spellSaveDc: partial.spellSaveDc ?? "",
     spellAttackBonus: partial.spellAttackBonus ?? "",
+    spellSaveDcAdjust: partial.spellSaveDcAdjust ?? 0,
+    spellAttackBonusAdjust: partial.spellAttackBonusAdjust ?? 0,
+    appearanceImage: partial.appearanceImage ?? "",
     appearance: partial.appearance ?? "",
     backstoryPersonality: partial.backstoryPersonality ?? "",
     alignment: partial.alignment ?? "",
@@ -378,23 +383,14 @@ export default function Home() {
     spellsLevel7: partial.spellsLevel7 ?? [""],
     spellsLevel8: partial.spellsLevel8 ?? [""],
     spellsLevel9: partial.spellsLevel9 ?? [""],
-    spellSlotsLevel1Total: partial.spellSlotsLevel1Total ?? "",
     spellSlotsLevel1Expended: partial.spellSlotsLevel1Expended ?? "",
-    spellSlotsLevel2Total: partial.spellSlotsLevel2Total ?? "",
     spellSlotsLevel2Expended: partial.spellSlotsLevel2Expended ?? "",
-    spellSlotsLevel3Total: partial.spellSlotsLevel3Total ?? "",
     spellSlotsLevel3Expended: partial.spellSlotsLevel3Expended ?? "",
-    spellSlotsLevel4Total: partial.spellSlotsLevel4Total ?? "",
     spellSlotsLevel4Expended: partial.spellSlotsLevel4Expended ?? "",
-    spellSlotsLevel5Total: partial.spellSlotsLevel5Total ?? "",
     spellSlotsLevel5Expended: partial.spellSlotsLevel5Expended ?? "",
-    spellSlotsLevel6Total: partial.spellSlotsLevel6Total ?? "",
     spellSlotsLevel6Expended: partial.spellSlotsLevel6Expended ?? "",
-    spellSlotsLevel7Total: partial.spellSlotsLevel7Total ?? "",
     spellSlotsLevel7Expended: partial.spellSlotsLevel7Expended ?? "",
-    spellSlotsLevel8Total: partial.spellSlotsLevel8Total ?? "",
     spellSlotsLevel8Expended: partial.spellSlotsLevel8Expended ?? "",
-    spellSlotsLevel9Total: partial.spellSlotsLevel9Total ?? "",
     spellSlotsLevel9Expended: partial.spellSlotsLevel9Expended ?? "",
   });
 
@@ -532,6 +528,40 @@ export default function Home() {
     }
   };
 
+  const handleAppearanceImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    try {
+      const imageDataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result ?? ""));
+        reader.onerror = () => reject(new Error("Failed to read image"));
+        reader.readAsDataURL(file);
+      });
+
+      setSheetData((prev) => ({
+        ...prev,
+        appearanceImage: imageDataUrl,
+      }));
+    } catch {
+      await Swal.fire({
+        title: "Invalid image",
+        text: "We couldn't load that image. Try another file.",
+        icon: "error",
+        background: "#140d24",
+        color: "#e2e8f0",
+        confirmButtonColor: "#a855f7",
+      });
+    } finally {
+      event.target.value = "";
+    }
+  };
+
   const handleNewCharacter = async () => {
     const result = await Swal.fire({
       title: "Start a new character?",
@@ -553,7 +583,11 @@ export default function Home() {
   };
 
   const handleChange = (field: keyof SheetData) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (
+      event: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) => {
       setSheetData((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
@@ -616,7 +650,14 @@ export default function Home() {
     );
   };
 
-  const adjustNumeric = (field: "initiativeAdjust" | "passivePerceptionAdjust", delta: number) => {
+  const adjustNumeric = (
+    field:
+      | "initiativeAdjust"
+      | "passivePerceptionAdjust"
+      | "spellSaveDcAdjust"
+      | "spellAttackBonusAdjust",
+    delta: number,
+  ) => {
     setSheetData((prev) => ({
       ...prev,
       [field]: prev[field] + delta,
@@ -716,6 +757,24 @@ export default function Home() {
     { key: "spellsLevel9", label: "Level 9", slotLevel: 9 },
   ];
 
+  const spellLevelColumns: SpellListKey[][] = [
+    ["cantrips", "spellsLevel1", "spellsLevel2"],
+    ["spellsLevel3", "spellsLevel4", "spellsLevel5"],
+    ["spellsLevel6", "spellsLevel7", "spellsLevel8", "spellsLevel9"],
+  ];
+
+  const spellSlotDiamondsByLevel: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, number> = {
+    1: 4,
+    2: 3,
+    3: 3,
+    4: 3,
+    5: 3,
+    6: 2,
+    7: 2,
+    8: 1,
+    9: 1,
+  };
+
   const levelValue = Math.max(1, toNumber(sheetData.level));
   const proficiencyBonus =
     levelValue >= 17
@@ -727,6 +786,30 @@ export default function Home() {
           : levelValue >= 5
             ? 3
             : 2;
+
+  const spellcastingAbilityKey = abilityKeys.includes(
+    sheetData.spellcastingAbility as AbilityKey,
+  )
+    ? (sheetData.spellcastingAbility as AbilityKey)
+    : null;
+  const spellcastingAbilityMod = spellcastingAbilityKey
+    ? getAbilityMod(spellcastingAbilityKey)
+    : 0;
+  const spellcastingModifierDisplay = spellcastingAbilityKey
+    ? `${spellcastingAbilityMod >= 0 ? "+" : ""}${spellcastingAbilityMod}`
+    : "—";
+  const spellSaveDcBase = spellcastingAbilityKey
+    ? 8 + proficiencyBonus + spellcastingAbilityMod
+    : null;
+  const spellAttackBonusBase = spellcastingAbilityKey
+    ? spellcastingAbilityMod + proficiencyBonus
+    : null;
+  const spellSaveDcTotal = spellSaveDcBase !== null
+    ? spellSaveDcBase + sheetData.spellSaveDcAdjust
+    : null;
+  const spellAttackBonusTotal = spellAttackBonusBase !== null
+    ? spellAttackBonusBase + sheetData.spellAttackBonusAdjust
+    : null;
 
   const abilities: Array<{
     key: AbilityKey;
@@ -2483,19 +2566,26 @@ export default function Home() {
                     <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                       Spellcasting Ability
                     </div>
-                    <input
+                    <select
                       value={sheetData.spellcastingAbility}
                       onChange={handleChange("spellcastingAbility")}
                       className="mt-2 w-full rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
-                    />
+                    >
+                      <option value="">Select ability</option>
+                      {abilityKeys.map((abilityKey) => (
+                        <option key={abilityKey} value={abilityKey}>
+                          {abilityLabels[abilityKey]}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
                     <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                       Spellcasting Modifier
                     </div>
                     <input
-                      value={sheetData.spellcastingModifier}
-                      onChange={handleChange("spellcastingModifier")}
+                      value={spellcastingModifierDisplay}
+                      readOnly
                       className="mt-2 w-full rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
                     />
                   </div>
@@ -2503,70 +2593,82 @@ export default function Home() {
                     <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                       Spell Save DC
                     </div>
-                    <input
-                      value={sheetData.spellSaveDc}
-                      onChange={handleChange("spellSaveDc")}
-                      className="mt-2 w-full rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
-                    />
+                    <div className="mt-2 flex flex-1 flex-col items-center justify-center gap-2 rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-2">
+                      <div className="text-2xl font-semibold text-slate-100">
+                        {spellSaveDcTotal !== null ? `${spellSaveDcTotal}` : "—"}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => adjustNumeric("spellSaveDcAdjust", -1)}
+                          className="h-7 w-7 rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-purple-400"
+                          aria-label="Decrease spell save DC bonus"
+                        >
+                          −
+                        </button>
+                        <span
+                          className={`text-sm font-semibold ${
+                            sheetData.spellSaveDcAdjust >= 0
+                              ? "text-emerald-300"
+                              : "text-red-300"
+                          }`}
+                        >
+                          {sheetData.spellSaveDcAdjust >= 0
+                            ? `+${sheetData.spellSaveDcAdjust}`
+                            : `${sheetData.spellSaveDcAdjust}`}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => adjustNumeric("spellSaveDcAdjust", 1)}
+                          className="h-7 w-7 rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-emerald-300 transition hover:border-purple-400"
+                          aria-label="Increase spell save DC bonus"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <div className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
                     <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                       Spell Attack Bonus
                     </div>
-                    <input
-                      value={sheetData.spellAttackBonus}
-                      onChange={handleChange("spellAttackBonus")}
-                      className="mt-2 w-full rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
-                <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
-                    Spell Slots
-                  </div>
-                </div>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
-                    <div
-                      key={`slot-${level}`}
-                      className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
-                    >
-                      <div className="text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200">
-                        Level {level}
+                    <div className="mt-2 flex flex-1 flex-col items-center justify-center gap-2 rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-2">
+                      <div className="text-2xl font-semibold text-slate-100">
+                        {spellAttackBonusTotal !== null
+                          ? `${spellAttackBonusTotal >= 0 ? "+" : ""}${spellAttackBonusTotal}`
+                          : "—"}
                       </div>
-                      <div className="mt-2 grid grid-cols-2 gap-2">
-                        <div>
-                          <div className="text-[9px] font-semibold uppercase tracking-wide text-purple-300/80">Total</div>
-                          <input
-                            value={sheetData[`spellSlotsLevel${level}Total` as keyof SheetData] as string}
-                            onChange={(event) =>
-                              setSheetData((prev) => ({
-                                ...prev,
-                                [`spellSlotsLevel${level}Total`]: event.target.value,
-                              }))
-                            }
-                            className="mt-1 w-full rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1 text-center text-xs text-slate-100"
-                          />
-                        </div>
-                        <div>
-                          <div className="text-[9px] font-semibold uppercase tracking-wide text-purple-300/80">Expended</div>
-                          <input
-                            value={sheetData[`spellSlotsLevel${level}Expended` as keyof SheetData] as string}
-                            onChange={(event) =>
-                              setSheetData((prev) => ({
-                                ...prev,
-                                [`spellSlotsLevel${level}Expended`]: event.target.value,
-                              }))
-                            }
-                            className="mt-1 w-full rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1 text-center text-xs text-slate-100"
-                          />
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => adjustNumeric("spellAttackBonusAdjust", -1)}
+                          className="h-7 w-7 rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-purple-400"
+                          aria-label="Decrease spell attack bonus"
+                        >
+                          −
+                        </button>
+                        <span
+                          className={`text-sm font-semibold ${
+                            sheetData.spellAttackBonusAdjust >= 0
+                              ? "text-emerald-300"
+                              : "text-red-300"
+                          }`}
+                        >
+                          {sheetData.spellAttackBonusAdjust >= 0
+                            ? `+${sheetData.spellAttackBonusAdjust}`
+                            : `${sheetData.spellAttackBonusAdjust}`}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => adjustNumeric("spellAttackBonusAdjust", 1)}
+                          className="h-7 w-7 rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-emerald-300 transition hover:border-purple-400"
+                          aria-label="Increase spell attack bonus"
+                        >
+                          +
+                        </button>
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
 
@@ -2577,52 +2679,101 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-3">
-                  {spellLevelSections.map((section) => (
-                    <div
-                      key={section.key}
-                      className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
-                    >
-                      <div className="flex items-center justify-between rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5">
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200">
-                          {section.label}
-                        </span>
-                        {section.slotLevel ? (
-                          <span className="text-[9px] text-purple-300/80">
-                            {`Slots: ${sheetData[`spellSlotsLevel${section.slotLevel}Total` as keyof SheetData] as string || "—"}/${sheetData[`spellSlotsLevel${section.slotLevel}Expended` as keyof SheetData] as string || "—"}`}
-                          </span>
-                        ) : null}
-                      </div>
+                  {spellLevelColumns.map((column, columnIndex) => (
+                    <div key={`spell-column-${columnIndex}`} className="space-y-3">
+                      {column.map((sectionKey) => {
+                        const section = spellLevelSections.find((entry) => entry.key === sectionKey);
+                        if (!section) return null;
 
-                      <div className="mt-2 space-y-2">
-                        {(sheetData[section.key] as string[]).map((value: string, index: number) => (
-                          <div key={`${section.key}-${index}`} className="flex items-start gap-2">
-                            <textarea
-                              rows={1}
-                              value={value}
-                              onChange={(event) =>
-                                updateModularItem(section.key, index, event.target.value)
-                              }
-                              className="w-full resize-none rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-xs text-slate-100"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeModularItem(section.key, index)}
-                              className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-xs font-semibold text-red-300 transition hover:border-red-300"
-                              aria-label={`Remove ${section.label} entry`}
-                            >
-                              −
-                            </button>
+                        const maxSlots = section.slotLevel
+                          ? spellSlotDiamondsByLevel[section.slotLevel]
+                          : 0;
+                        const expendedKey = section.slotLevel
+                          ? (`spellSlotsLevel${section.slotLevel}Expended` as keyof SheetData)
+                          : null;
+                        const currentExpended = expendedKey
+                          ? Math.max(
+                              0,
+                              Math.min(
+                                maxSlots,
+                                Number.parseInt(
+                                  String(sheetData[expendedKey] ?? "0"),
+                                  10,
+                                ) || 0,
+                              ),
+                            )
+                          : 0;
+
+                        return (
+                          <div
+                            key={section.key}
+                            className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
+                          >
+                            <div className="rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200">
+                                  {section.label}
+                                </span>
+                                {section.slotLevel ? (
+                                  <div className="flex items-center gap-1.5">
+                                    {Array.from({ length: maxSlots }).map((_, index) => (
+                                      <button
+                                        key={`${section.key}-slot-${index}`}
+                                        type="button"
+                                        onClick={() => {
+                                          const nextExpended =
+                                            index < currentExpended ? index : index + 1;
+                                          setSheetData((prev) => ({
+                                            ...prev,
+                                            [`spellSlotsLevel${section.slotLevel}Expended`]: String(nextExpended),
+                                          }));
+                                        }}
+                                        className={`h-3.5 w-3.5 rotate-45 border transition-all ${
+                                          index < currentExpended
+                                            ? "border-none bg-purple-400 [box-shadow:0_0_6px_rgba(168,85,247,0.45)]"
+                                            : "border-purple-500/40 bg-transparent"
+                                        }`}
+                                        aria-label={`${section.label} spell slot ${index + 1}`}
+                                      />
+                                    ))}
+                                  </div>
+                                ) : null}
+                              </div>
+                            </div>
+
+                            <div className="mt-2 space-y-2">
+                              {(sheetData[section.key] as string[]).map((value: string, index: number) => (
+                                <div key={`${section.key}-${index}`} className="flex items-start gap-2">
+                                  <textarea
+                                    rows={1}
+                                    value={value}
+                                    onChange={(event) =>
+                                      updateModularItem(section.key, index, event.target.value)
+                                    }
+                                    className="w-full resize-none rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-xs text-slate-100"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => removeModularItem(section.key, index)}
+                                    className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-xs font-semibold text-red-300 transition hover:border-red-300"
+                                    aria-label={`Remove ${section.label} entry`}
+                                  >
+                                    −
+                                  </button>
+                                </div>
+                              ))}
+                              <button
+                                type="button"
+                                onClick={() => addModularItem(section.key)}
+                                className="flex w-full items-center justify-center gap-1 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200 transition hover:border-purple-400"
+                              >
+                                <span className="text-sm leading-none">+</span>
+                                Add Spell
+                              </button>
+                            </div>
                           </div>
-                        ))}
-                        <button
-                          type="button"
-                          onClick={() => addModularItem(section.key)}
-                          className="flex w-full items-center justify-center gap-1 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200 transition hover:border-purple-400"
-                        >
-                          <span className="text-sm leading-none">+</span>
-                          Add Spell
-                        </button>
-                      </div>
+                        );
+                      })}
                     </div>
                   ))}
                 </div>
@@ -2633,6 +2784,49 @@ export default function Home() {
               <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
                 <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                   Appearance
+                </div>
+                <input
+                  ref={appearanceImageInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAppearanceImageChange}
+                  className="hidden"
+                />
+                <div className="mt-2 rounded-lg border border-purple-900/60 bg-[#0f0a1c] p-2">
+                  {sheetData.appearanceImage ? (
+                    <img
+                      src={sheetData.appearanceImage}
+                      alt="Character appearance"
+                      className="block h-auto w-full rounded-md border border-purple-900/60"
+                    />
+                  ) : (
+                    <div className="flex h-40 w-full items-center justify-center rounded-md border border-dashed border-purple-900/60 text-xs uppercase tracking-[0.14em] text-purple-300/80">
+                      No image selected
+                    </div>
+                  )}
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => appearanceImageInputRef.current?.click()}
+                      className="flex-1 rounded-md border border-purple-900/60 bg-[#140d24] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200 transition hover:border-purple-400"
+                    >
+                      {sheetData.appearanceImage ? "Change Image" : "Add Image"}
+                    </button>
+                    {sheetData.appearanceImage ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSheetData((prev) => ({
+                            ...prev,
+                            appearanceImage: "",
+                          }))
+                        }
+                        className="rounded-md border border-purple-900/60 bg-[#140d24] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-300 transition hover:border-red-300"
+                      >
+                        Remove
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
                 <textarea
                   rows={6}
