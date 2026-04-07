@@ -159,8 +159,8 @@ const defaultSheetData: SheetData = {
   savingThrowProficiencies: defaultSavingThrowFlags,
   initiativeAdjust: 0,
   passivePerceptionAdjust: 0,
-  speed: "",
-  size: "",
+  speed: "30",
+  size: "M",
   heroicInspiration: false,
   weapons: defaultWeapons,
   hpCurrent: "",
@@ -186,6 +186,7 @@ const storageKey = "dnd-sheet-2024-v1";
 
 export default function Home() {
   const [sheetData, setSheetData] = useState<SheetData>(defaultSheetData);
+  const [activeTab, setActiveTab] = useState<"info" | "combat" | "features">("info");
   const [hasHydrated, setHasHydrated] = useState(false);
   const loadInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
@@ -689,7 +690,7 @@ export default function Home() {
         </div>
       )}
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 px-4 py-5 sm:px-6 sm:py-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className={`flex flex-wrap items-center justify-between gap-4 ${activeTab === "combat" || activeTab === "features" ? "hidden lg:flex" : "flex"}`}>
           <div>
             <h1
               className={`text-3xl font-semibold text-slate-50 ${titleFont.className}`}
@@ -739,28 +740,29 @@ export default function Home() {
           </div>
         </div>
 
-        <section className="grid items-stretch gap-3 md:grid-cols-12 lg:grid-cols-12">
-          {/* Character Header: Main Info Box */}
-          <div className="h-full rounded-xl border border-purple-900/60 bg-[#1f1635] p-3 shadow-sm md:col-span-12 lg:col-span-4">
-            <div className="flex flex-col gap-4">
+        <section className={`flex flex-col gap-3 lg:grid lg:grid-cols-12 lg:items-center lg:gap-3 ${activeTab === "combat" || activeTab === "features" ? "hidden lg:grid" : "flex"}`}>
+          <div className="flex flex-col gap-3 md:flex-row md:items-stretch lg:contents">
+            {/* Character Header: Main Info Box */}
+            <div className="h-full flex-1 rounded-xl border border-purple-900/60 bg-[#1f1635] p-3 shadow-sm md:flex-2 lg:col-span-4 lg:h-40">
+              <div className="flex flex-col gap-2">
               <div className="flex flex-col">
                 <input
                   value={sheetData.characterName}
                   onChange={handleChange("characterName")}
-                  className="w-full rounded-none border-b border-purple-500/60 bg-transparent px-2 py-1 text-base font-semibold text-slate-100 outline-none"
+                  className="w-full rounded-none border-b border-purple-500/60 bg-transparent px-2 py-0.5 text-base font-semibold text-slate-100 outline-none"
                 />
-                <label className="mt-1 text-[9px] font-bold uppercase tracking-wider text-purple-300/80">
+                <label className="mt-0.5 text-[8px] font-bold uppercase tracking-wider text-purple-300/80">
                   Character Name
                 </label>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
                 <div className="flex flex-col">
                   <input
                     value={sheetData.background}
                     onChange={handleChange("background")}
-                    className="w-full rounded-none border-b border-purple-500/60 bg-transparent px-2 py-0.5 text-sm text-slate-100 outline-none"
+                    className="w-full rounded-none border-b border-purple-500/60 bg-transparent px-2 py-0 text-sm text-slate-100 outline-none"
                   />
-                  <label className="mt-1 text-[9px] font-bold uppercase tracking-wider text-purple-300/80">
+                  <label className="mt-0.5 text-[8px] font-bold uppercase tracking-wider text-purple-300/80">
                     Background
                   </label>
                 </div>
@@ -768,21 +770,21 @@ export default function Home() {
                   <input
                     value={sheetData.className}
                     onChange={handleChange("className")}
-                    className="w-full rounded-none border-b border-purple-500/60 bg-transparent px-2 py-0.5 text-sm text-slate-100 outline-none"
+                    className="w-full rounded-none border-b border-purple-500/60 bg-transparent px-2 py-0 text-sm text-slate-100 outline-none"
                   />
-                  <label className="mt-1 text-[9px] font-bold uppercase tracking-wider text-purple-300/80">
+                  <label className="mt-0.5 text-[8px] font-bold uppercase tracking-wider text-purple-300/80">
                     Class & Level
                   </label>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
                 <div className="flex flex-col">
                   <input
                     value={sheetData.species}
                     onChange={handleChange("species")}
-                    className="w-full rounded-none border-b border-purple-500/60 bg-transparent px-2 py-0.5 text-sm text-slate-100 outline-none"
+                    className="w-full rounded-none border-b border-purple-500/60 bg-transparent px-2 py-0 text-sm text-slate-100 outline-none"
                   />
-                  <label className="mt-1 text-[9px] font-bold uppercase tracking-wider text-purple-300/80">
+                  <label className="mt-0.5 text-[8px] font-bold uppercase tracking-wider text-purple-300/80">
                     Species
                   </label>
                 </div>
@@ -790,105 +792,108 @@ export default function Home() {
                   <input
                     value={sheetData.subclass}
                     onChange={handleChange("subclass")}
-                    className="w-full rounded-none border-b border-purple-500/60 bg-transparent px-2 py-0.5 text-sm text-slate-100 outline-none"
+                    className="w-full rounded-none border-b border-purple-500/60 bg-transparent px-2 py-0 text-sm text-slate-100 outline-none"
                   />
-                  <label className="mt-1 text-[9px] font-bold uppercase tracking-wider text-purple-300/80">
+                  <label className="mt-0.5 text-[8px] font-bold uppercase tracking-wider text-purple-300/80">
                     Subclass
                   </label>
+                </div>
+              </div>
+              </div>
+            </div>
+
+            <div className="flex flex-1 flex-row items-center justify-center gap-3 md:col-span-12 lg:contents lg:flex-row lg:gap-3 xl:col-span-4">
+              {/* Character Header: Level & XP (Circle/Oval shape) */}
+              <div className="flex lg:col-span-1">
+                <div className="relative flex h-40 w-28 flex-col items-center justify-center overflow-hidden rounded-[50%_50%_50%_50%/30%_30%_70%_70%] border-2 border-purple-500/60 bg-[#1f1635] shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = Math.max(1, toNumber(sheetData.level) + 1);
+                      setSheetData(prev => ({ ...prev, level: String(next) }));
+                    }}
+                    className="absolute top-1 left-1/2 z-10 -translate-x-1/2 text-purple-400 opacity-40 transition-all hover:scale-125 hover:opacity-100 active:scale-95"
+                    aria-label="Level up"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                  </button>
+                  <div className="flex flex-1 flex-col items-center justify-center pt-2">
+                    <input
+                      type="number"
+                      min={1}
+                      value={sheetData.level}
+                      onChange={handleChange("level")}
+                      className="w-12 bg-transparent text-center text-2xl font-bold text-slate-100 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-purple-300/80">
+                      Level
+                    </label>
+                  </div>
+                  <div className="h-px w-full bg-purple-500/40" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = Math.max(1, toNumber(sheetData.level) - 1);
+                      setSheetData(prev => ({ ...prev, level: String(next) }));
+                    }}
+                    className="absolute bottom-1 left-1/2 z-10 -translate-x-1/2 text-purple-400 opacity-40 transition-all hover:scale-125 hover:opacity-100 active:scale-95"
+                    aria-label="Level down"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </button>
+                  <div className="flex flex-1 flex-col items-center justify-center pb-2">
+                    <input
+                      type="number"
+                      min={0}
+                      value={sheetData.xp}
+                      onChange={handleChange("xp")}
+                      className="w-16 bg-transparent text-center text-sm font-semibold text-slate-100 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-purple-300/80">
+                      XP
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Character Header: AC & Shield (Shield shape) */}
+              <div className="flex lg:col-span-1">
+                <div className="relative flex h-40 w-28 flex-col items-center justify-center overflow-hidden border-x-2 border-b-2 border-purple-500/60 bg-[#1f1635] shadow-lg [clip-path:polygon(0%_0%,100%_0%,100%_70%,50%_100%,0%_70%)]">
+                  <div className="bg-purple-900/30 w-full py-1 text-center">
+                    <label className="text-[9px] font-bold uppercase tracking-tighter text-purple-300">
+                      Armor Class
+                    </label>
+                  </div>
+                  <div className="flex flex-1 items-center justify-center">
+                    <input
+                      type="number"
+                      min={0}
+                      value={sheetData.armorClass}
+                      onChange={handleChange("armorClass")}
+                      className="w-12 bg-transparent text-center text-3xl font-bold text-slate-100 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                  </div>
+                  <div className="h-px w-3/4 bg-purple-500/40" />
+                  <div className="flex flex-col items-center pb-4 pt-1">
+                    <input
+                      type="number"
+                      min={0}
+                      value={sheetData.shield}
+                      onChange={handleChange("shield")}
+                      className="w-10 bg-transparent text-center text-lg font-bold text-slate-100 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-purple-300/80">
+                      Shield
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Character Header: Level & XP (Circle/Oval shape) */}
-          <div className="flex h-full items-center justify-center md:col-span-3 lg:col-span-1">
-            <div className="relative flex h-32 w-24 flex-col items-center justify-center overflow-hidden rounded-[50%_50%_50%_50%/30%_30%_70%_70%] border-2 border-purple-500/60 bg-[#1f1635] shadow-lg">
-              <button
-                type="button"
-                onClick={() => {
-                  const next = Math.max(1, toNumber(sheetData.level) + 1);
-                  setSheetData(prev => ({ ...prev, level: String(next) }));
-                }}
-                className="absolute top-1 left-1/2 z-10 -translate-x-1/2 text-purple-400 opacity-40 transition-all hover:scale-125 hover:opacity-100 active:scale-95"
-                aria-label="Level up"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
-              </button>
-              <div className="flex flex-1 flex-col items-center justify-center pt-2">
-                <input
-                  type="number"
-                  min={1}
-                  value={sheetData.level}
-                  onChange={handleChange("level")}
-                  className="w-12 bg-transparent text-center text-2xl font-bold text-slate-100 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-                <label className="text-[9px] font-bold uppercase tracking-widest text-purple-300/80">
-                  Level
-                </label>
-              </div>
-              <div className="h-px w-full bg-purple-500/40" />
-              <button
-                type="button"
-                onClick={() => {
-                  const next = Math.max(1, toNumber(sheetData.level) - 1);
-                  setSheetData(prev => ({ ...prev, level: String(next) }));
-                }}
-                className="absolute bottom-1 left-1/2 z-10 -translate-x-1/2 text-purple-400 opacity-40 transition-all hover:scale-125 hover:opacity-100 active:scale-95"
-                aria-label="Level down"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-              <div className="flex flex-1 flex-col items-center justify-center pb-2">
-                <input
-                  type="number"
-                  min={0}
-                  value={sheetData.xp}
-                  onChange={handleChange("xp")}
-                  className="w-16 bg-transparent text-center text-sm font-semibold text-slate-100 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-                <label className="text-[9px] font-bold uppercase tracking-widest text-purple-300/80">
-                  XP
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {/* Character Header: AC & Shield (Shield shape) */}
-          <div className="flex h-full items-center justify-center md:col-span-3 lg:col-span-1">
-            <div className="relative flex h-32 w-24 flex-col items-center justify-center overflow-hidden border-x-2 border-b-2 border-purple-500/60 bg-[#1f1635] shadow-lg [clip-path:polygon(0%_0%,100%_0%,100%_70%,50%_100%,0%_70%)]">
-              <div className="bg-purple-900/30 w-full py-1 text-center">
-                <label className="text-[9px] font-bold uppercase tracking-tighter text-purple-300">
-                  Armor Class
-                </label>
-              </div>
-              <div className="flex flex-1 items-center justify-center">
-                <input
-                  type="number"
-                  min={0}
-                  value={sheetData.armorClass}
-                  onChange={handleChange("armorClass")}
-                  className="w-12 bg-transparent text-center text-3xl font-bold text-slate-100 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-              </div>
-              <div className="h-px w-3/4 bg-purple-500/40" />
-              <div className="flex flex-col items-center pb-4 pt-1">
-                <input
-                  type="number"
-                  min={0}
-                  value={sheetData.shield}
-                  onChange={handleChange("shield")}
-                  className="w-10 bg-transparent text-center text-lg font-bold text-slate-100 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-                <label className="text-[9px] font-bold uppercase tracking-widest text-purple-300/80">
-                  Shield
-                </label>
-              </div>
-            </div>
-          </div>
-
           {/* Character Header: HP, Hit Dice, Death Saves (Combined Box) */}
-          <div className="h-full rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm md:col-span-12 lg:col-span-6">
-            <div className="grid h-full grid-cols-12 gap-3">
+          <div className={`h-40 rounded-xl border border-purple-900/60 bg-[#1f1635] p-1.5 shadow-sm md:col-span-12 lg:col-span-6 ${activeTab === "info" || activeTab === "features" ? "hidden lg:block" : "block"}`}>
+            <div className="grid h-full grid-cols-12 gap-1 px-0.5 pb-0.5">
               {/* Hit Points Sub-box */}
               <div className="col-span-6 flex h-full flex-col overflow-hidden rounded-lg border border-purple-900/60 bg-[#140d24]">
                 <div className="bg-purple-900/20 py-1 text-center text-[10px] font-bold uppercase tracking-[0.25em] text-purple-200">
@@ -999,32 +1004,30 @@ export default function Home() {
                   Death Saves
                 </div>
                 <div className="flex flex-1 flex-col items-center justify-around py-1">
-                  <div className="flex flex-col items-center scale-[0.8]">
-                    <span className="mb-0.5 text-[8px] font-bold text-purple-300/80">SUCCESSES</span>
-                    <div className="flex gap-1.5">
+                  <div className="flex flex-col items-center scale-[0.9]">
+                    <span className="mb-1 text-[8px] font-bold text-purple-300/80 uppercase">Successes</span>
+                    <div className="flex gap-2">
                       {[0, 1, 2].map((i) => (
-                        <button
+                        <div
                           key={`success-${i}`}
-                          type="button"
-                          onClick={() => setSheetData(prev => ({ ...prev, deathSuccesses: i < prev.deathSuccesses ? i : i + 1 }))}
-                          className={`h-4 w-4 rounded-full border border-purple-500/40 transition-all ${
+                          className={`h-4 w-4 rotate-45 border-2 border-purple-500/40 transition-all ${
                             i < sheetData.deathSuccesses ? "bg-purple-400 border-none [box-shadow:0_0_8px_rgba(168,85,247,0.5)]" : "bg-transparent"
                           }`}
+                          onClick={() => setSheetData(prev => ({ ...prev, deathSuccesses: i < prev.deathSuccesses ? i : i + 1 }))}
                         />
                       ))}
                     </div>
                   </div>
-                  <div className="flex flex-col items-center scale-[0.8]">
-                    <span className="mb-0.5 text-[8px] font-bold text-purple-300/80">FAILURES</span>
-                    <div className="flex gap-1.5">
+                  <div className="flex flex-col items-center scale-[0.9]">
+                    <span className="mb-1 text-[8px] font-bold text-purple-300/80 uppercase">Failures</span>
+                    <div className="flex gap-2">
                       {[0, 1, 2].map((i) => (
-                        <button
+                        <div
                           key={`failure-${i}`}
-                          type="button"
-                          onClick={() => setSheetData(prev => ({ ...prev, deathFailures: i < prev.deathFailures ? i : i + 1 }))}
-                          className={`h-4 w-4 rounded-full border border-purple-500/40 transition-all ${
+                          className={`h-4 w-4 rotate-45 border-2 border-purple-500/40 transition-all ${
                             i < sheetData.deathFailures ? "bg-purple-400 border-none [box-shadow:0_0_8px_rgba(168,85,247,0.5)]" : "bg-transparent"
                           }`}
+                          onClick={() => setSheetData(prev => ({ ...prev, deathFailures: i < prev.deathFailures ? i : i + 1 }))}
                         />
                       ))}
                     </div>
@@ -1035,10 +1038,10 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="grid items-start gap-3 md:grid-cols-12 lg:grid-cols-12">
+        <section className={`grid items-start gap-3 md:grid-cols-12 lg:grid-cols-12 ${activeTab === "combat" || activeTab === "features" ? "hidden lg:grid" : "grid"}`}>
           <aside className="flex flex-col gap-3 md:col-span-12 lg:col-span-4">
             <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm">
-              <div className="grid gap-3 lg:grid-cols-2">
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-2">
                             <div className="flex flex-col gap-3">
                               <div className="flex h-full flex-col gap-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
                                 <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
@@ -1361,7 +1364,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm">
+            <div className={`rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm ${activeTab === "combat" || activeTab === "features" ? "hidden lg:block" : "block"}`}>
               <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                   Equipment Training & Proficiencies
@@ -1441,7 +1444,7 @@ export default function Home() {
           </aside>
 
           <div className="flex flex-col gap-3 md:col-span-12 lg:col-span-8">
-            <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm">
+            <div className={`rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm ${activeTab === "combat" || activeTab === "features" ? "hidden lg:block" : "block"}`}>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex h-full flex-col rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
                 <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
@@ -1559,10 +1562,10 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+            <div className={`mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 ${activeTab === "info" || activeTab === "features" ? "hidden lg:block" : "block"}`}>
               <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
-                  Weapons & Damage Cantrips
+                  Combat Action: Weapons & Damage Cantrips
                 </div>
               </div>
 
@@ -1700,7 +1703,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mt-4 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+            <div className={`mt-4 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 ${activeTab === "info" || activeTab === "combat" ? "hidden lg:block" : "block"}`}>
               <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                   Class Features
@@ -1785,7 +1788,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <div className={`mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2 ${activeTab === "info" || activeTab === "combat" ? "hidden lg:grid" : "grid"}`}>
               <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
                 <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
@@ -1910,6 +1913,48 @@ export default function Home() {
           https://github.com/Elyeet9
         </a>
       </footer>
+
+      {/* Responsive Bookmark Tabs */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 lg:hidden">
+        <button
+          onClick={() => setActiveTab("info")}
+          className={`group relative flex h-14 w-14 items-center justify-center rounded-xl border-2 transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ${
+            activeTab === "info"
+              ? "border-purple-400 bg-purple-600 text-white translate-x-0"
+              : "border-purple-900/40 bg-[#1f1635] text-purple-300 translate-x-4 hover:translate-x-0 hover:bg-[#2d224d]"
+          }`}
+          title="Character Info"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span className="absolute right-full mr-3 hidden rounded-md bg-purple-900 px-2 py-1 text-xs whitespace-nowrap group-hover:block">Info</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("combat")}
+          className={`group relative flex h-14 w-14 items-center justify-center rounded-xl border-2 transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ${
+            activeTab === "combat"
+              ? "border-purple-400 bg-purple-600 text-white translate-x-0"
+              : "border-purple-900/40 bg-[#1f1635] text-purple-300 translate-x-4 hover:translate-x-0 hover:bg-[#2d224d]"
+          }`}
+          title="Combat"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 8.5-8.5-1.5-1.5L11.5 17.5z"/><path d="m8 14 7-7"/><path d="m11 17 7-7"/></svg>
+          <span className="absolute right-full mr-3 hidden rounded-md bg-purple-900 px-2 py-1 text-xs whitespace-nowrap group-hover:block">Combat</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("features")}
+          className={`group relative flex h-14 w-14 items-center justify-center rounded-xl border-2 transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ${
+            activeTab === "features"
+              ? "border-purple-400 bg-purple-600 text-white translate-x-0"
+              : "border-purple-900/40 bg-[#1f1635] text-purple-300 translate-x-4 hover:translate-x-0 hover:bg-[#2d224d]"
+          }`}
+          title="Features & Traits"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          <span className="absolute right-full mr-3 hidden rounded-md bg-purple-900 px-2 py-1 text-xs whitespace-nowrap group-hover:block">Features</span>
+        </button>
+      </div>
     </div>
   );
 }
