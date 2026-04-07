@@ -46,6 +46,49 @@ type SheetData = {
   armorTrainingShields: boolean;
   weaponProficiencies: string;
   toolProficiencies: string;
+  spellcastingAbility: string;
+  spellcastingModifier: string;
+  spellSaveDc: string;
+  spellAttackBonus: string;
+  appearance: string;
+  backstoryPersonality: string;
+  alignment: string;
+  languages: string;
+  equipment: string;
+  magicItemAttunement: string[];
+  coinCp: string;
+  coinSp: string;
+  coinEp: string;
+  coinGp: string;
+  coinPp: string;
+  cantrips: string[];
+  spellsLevel1: string[];
+  spellsLevel2: string[];
+  spellsLevel3: string[];
+  spellsLevel4: string[];
+  spellsLevel5: string[];
+  spellsLevel6: string[];
+  spellsLevel7: string[];
+  spellsLevel8: string[];
+  spellsLevel9: string[];
+  spellSlotsLevel1Total: string;
+  spellSlotsLevel1Expended: string;
+  spellSlotsLevel2Total: string;
+  spellSlotsLevel2Expended: string;
+  spellSlotsLevel3Total: string;
+  spellSlotsLevel3Expended: string;
+  spellSlotsLevel4Total: string;
+  spellSlotsLevel4Expended: string;
+  spellSlotsLevel5Total: string;
+  spellSlotsLevel5Expended: string;
+  spellSlotsLevel6Total: string;
+  spellSlotsLevel6Expended: string;
+  spellSlotsLevel7Total: string;
+  spellSlotsLevel7Expended: string;
+  spellSlotsLevel8Total: string;
+  spellSlotsLevel8Expended: string;
+  spellSlotsLevel9Total: string;
+  spellSlotsLevel9Expended: string;
 };
 
 type SkillKey =
@@ -83,6 +126,26 @@ type WeaponEntry = {
   damageType: string;
   notes: string;
 };
+
+type SpellListKey =
+  | "cantrips"
+  | "spellsLevel1"
+  | "spellsLevel2"
+  | "spellsLevel3"
+  | "spellsLevel4"
+  | "spellsLevel5"
+  | "spellsLevel6"
+  | "spellsLevel7"
+  | "spellsLevel8"
+  | "spellsLevel9";
+
+type ModularFieldKey =
+  | "classFeaturesLeft"
+  | "classFeaturesRight"
+  | "speciesTraits"
+  | "feats"
+  | "magicItemAttunement"
+  | SpellListKey;
 
 const titleFont = Cinzel_Decorative({
   subsets: ["latin"],
@@ -180,6 +243,49 @@ const defaultSheetData: SheetData = {
   armorTrainingShields: false,
   weaponProficiencies: "",
   toolProficiencies: "",
+  spellcastingAbility: "",
+  spellcastingModifier: "",
+  spellSaveDc: "",
+  spellAttackBonus: "",
+  appearance: "",
+  backstoryPersonality: "",
+  alignment: "",
+  languages: "",
+  equipment: "",
+  magicItemAttunement: ["", "", ""],
+  coinCp: "",
+  coinSp: "",
+  coinEp: "",
+  coinGp: "",
+  coinPp: "",
+  cantrips: [""],
+  spellsLevel1: [""],
+  spellsLevel2: [""],
+  spellsLevel3: [""],
+  spellsLevel4: [""],
+  spellsLevel5: [""],
+  spellsLevel6: [""],
+  spellsLevel7: [""],
+  spellsLevel8: [""],
+  spellsLevel9: [""],
+  spellSlotsLevel1Total: "",
+  spellSlotsLevel1Expended: "",
+  spellSlotsLevel2Total: "",
+  spellSlotsLevel2Expended: "",
+  spellSlotsLevel3Total: "",
+  spellSlotsLevel3Expended: "",
+  spellSlotsLevel4Total: "",
+  spellSlotsLevel4Expended: "",
+  spellSlotsLevel5Total: "",
+  spellSlotsLevel5Expended: "",
+  spellSlotsLevel6Total: "",
+  spellSlotsLevel6Expended: "",
+  spellSlotsLevel7Total: "",
+  spellSlotsLevel7Expended: "",
+  spellSlotsLevel8Total: "",
+  spellSlotsLevel8Expended: "",
+  spellSlotsLevel9Total: "",
+  spellSlotsLevel9Expended: "",
 };
 
 const storageKey = "dnd-sheet-2024-v1";
@@ -187,7 +293,9 @@ const storageKey = "dnd-sheet-2024-v1";
 export default function Home() {
   const [sheetData, setSheetData] = useState<SheetData>(defaultSheetData);
   const [activeTab, setActiveTab] = useState<"info" | "combat" | "features">("info");
+  const [desktopPageTab, setDesktopPageTab] = useState<"I" | "II">("I");
   const [hasHydrated, setHasHydrated] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const loadInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const dragDepthRef = useRef(0);
@@ -245,6 +353,49 @@ export default function Home() {
     armorTrainingShields: partial.armorTrainingShields ?? false,
     weaponProficiencies: partial.weaponProficiencies ?? "",
     toolProficiencies: partial.toolProficiencies ?? "",
+    spellcastingAbility: partial.spellcastingAbility ?? "",
+    spellcastingModifier: partial.spellcastingModifier ?? "",
+    spellSaveDc: partial.spellSaveDc ?? "",
+    spellAttackBonus: partial.spellAttackBonus ?? "",
+    appearance: partial.appearance ?? "",
+    backstoryPersonality: partial.backstoryPersonality ?? "",
+    alignment: partial.alignment ?? "",
+    languages: partial.languages ?? "",
+    equipment: partial.equipment ?? "",
+    magicItemAttunement: partial.magicItemAttunement ?? ["", "", ""],
+    coinCp: partial.coinCp ?? "",
+    coinSp: partial.coinSp ?? "",
+    coinEp: partial.coinEp ?? "",
+    coinGp: partial.coinGp ?? "",
+    coinPp: partial.coinPp ?? "",
+    cantrips: partial.cantrips ?? [""],
+    spellsLevel1: partial.spellsLevel1 ?? [""],
+    spellsLevel2: partial.spellsLevel2 ?? [""],
+    spellsLevel3: partial.spellsLevel3 ?? [""],
+    spellsLevel4: partial.spellsLevel4 ?? [""],
+    spellsLevel5: partial.spellsLevel5 ?? [""],
+    spellsLevel6: partial.spellsLevel6 ?? [""],
+    spellsLevel7: partial.spellsLevel7 ?? [""],
+    spellsLevel8: partial.spellsLevel8 ?? [""],
+    spellsLevel9: partial.spellsLevel9 ?? [""],
+    spellSlotsLevel1Total: partial.spellSlotsLevel1Total ?? "",
+    spellSlotsLevel1Expended: partial.spellSlotsLevel1Expended ?? "",
+    spellSlotsLevel2Total: partial.spellSlotsLevel2Total ?? "",
+    spellSlotsLevel2Expended: partial.spellSlotsLevel2Expended ?? "",
+    spellSlotsLevel3Total: partial.spellSlotsLevel3Total ?? "",
+    spellSlotsLevel3Expended: partial.spellSlotsLevel3Expended ?? "",
+    spellSlotsLevel4Total: partial.spellSlotsLevel4Total ?? "",
+    spellSlotsLevel4Expended: partial.spellSlotsLevel4Expended ?? "",
+    spellSlotsLevel5Total: partial.spellSlotsLevel5Total ?? "",
+    spellSlotsLevel5Expended: partial.spellSlotsLevel5Expended ?? "",
+    spellSlotsLevel6Total: partial.spellSlotsLevel6Total ?? "",
+    spellSlotsLevel6Expended: partial.spellSlotsLevel6Expended ?? "",
+    spellSlotsLevel7Total: partial.spellSlotsLevel7Total ?? "",
+    spellSlotsLevel7Expended: partial.spellSlotsLevel7Expended ?? "",
+    spellSlotsLevel8Total: partial.spellSlotsLevel8Total ?? "",
+    spellSlotsLevel8Expended: partial.spellSlotsLevel8Expended ?? "",
+    spellSlotsLevel9Total: partial.spellSlotsLevel9Total ?? "",
+    spellSlotsLevel9Expended: partial.spellSlotsLevel9Expended ?? "",
   });
 
   useEffect(() => {
@@ -269,6 +420,20 @@ export default function Home() {
     }
     window.localStorage.setItem(storageKey, JSON.stringify(sheetData));
   }, [hasHydrated, sheetData]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 240);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleDownload = () => {
     if (typeof window === "undefined") {
@@ -504,13 +669,7 @@ export default function Home() {
     }));
   };
 
-  const addModularItem = (
-    side:
-      | "classFeaturesLeft"
-      | "classFeaturesRight"
-      | "speciesTraits"
-      | "feats",
-  ) => {
+  const addModularItem = (side: ModularFieldKey) => {
     setSheetData((prev) => ({
       ...prev,
       [side]: [...prev[side], ""],
@@ -518,11 +677,7 @@ export default function Home() {
   };
 
   const updateModularItem = (
-    side:
-      | "classFeaturesLeft"
-      | "classFeaturesRight"
-      | "speciesTraits"
-      | "feats",
+    side: ModularFieldKey,
     index: number,
     value: string,
   ) => {
@@ -535,11 +690,7 @@ export default function Home() {
   };
 
   const removeModularItem = (
-    side:
-      | "classFeaturesLeft"
-      | "classFeaturesRight"
-      | "speciesTraits"
-      | "feats",
+    side: ModularFieldKey,
     index: number,
   ) => {
     setSheetData((prev) => ({
@@ -547,6 +698,23 @@ export default function Home() {
       [side]: prev[side].filter((_: string, idx: number) => idx !== index),
     }));
   };
+
+  const spellLevelSections: Array<{
+    key: SpellListKey;
+    label: string;
+    slotLevel: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | null;
+  }> = [
+    { key: "cantrips", label: "Cantrips", slotLevel: null },
+    { key: "spellsLevel1", label: "Level 1", slotLevel: 1 },
+    { key: "spellsLevel2", label: "Level 2", slotLevel: 2 },
+    { key: "spellsLevel3", label: "Level 3", slotLevel: 3 },
+    { key: "spellsLevel4", label: "Level 4", slotLevel: 4 },
+    { key: "spellsLevel5", label: "Level 5", slotLevel: 5 },
+    { key: "spellsLevel6", label: "Level 6", slotLevel: 6 },
+    { key: "spellsLevel7", label: "Level 7", slotLevel: 7 },
+    { key: "spellsLevel8", label: "Level 8", slotLevel: 8 },
+    { key: "spellsLevel9", label: "Level 9", slotLevel: 9 },
+  ];
 
   const levelValue = Math.max(1, toNumber(sheetData.level));
   const proficiencyBonus =
@@ -740,7 +908,39 @@ export default function Home() {
           </div>
         </div>
 
-        <section className="flex flex-col gap-3 lg:grid lg:grid-cols-12 lg:items-center lg:gap-3">
+        <div className="hidden lg:flex lg:items-center lg:justify-center">
+          <div className="inline-flex overflow-hidden rounded-lg border border-purple-900/60 bg-[#1f1635] p-1">
+            <button
+              type="button"
+              onClick={() => setDesktopPageTab("I")}
+              className={`min-w-16 rounded-md px-5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] transition ${
+                desktopPageTab === "I"
+                  ? "bg-purple-500 text-slate-950"
+                  : "text-purple-200 hover:bg-[#2d224d]"
+              }`}
+            >
+              I
+            </button>
+            <button
+              type="button"
+              onClick={() => setDesktopPageTab("II")}
+              className={`min-w-16 rounded-md px-5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] transition ${
+                desktopPageTab === "II"
+                  ? "bg-purple-500 text-slate-950"
+                  : "text-purple-200 hover:bg-[#2d224d]"
+              }`}
+            >
+              II
+            </button>
+          </div>
+        </div>
+
+        <div
+          className={`space-y-3 ${
+            desktopPageTab === "I" ? "block" : "block lg:hidden"
+          }`}
+        >
+          <section className="flex flex-col gap-3 lg:grid lg:grid-cols-12 lg:gap-3">
           <div className={`flex flex-col gap-3 md:flex-row md:items-stretch lg:contents ${activeTab === "combat" || activeTab === "features" ? "hidden lg:contents" : "flex"}`}>
             {/* Character Header: Main Info Box */}
             <div className="h-full flex-1 rounded-xl border border-purple-900/60 bg-[#1f1635] p-3 shadow-sm md:flex-2 lg:col-span-4 lg:h-40">
@@ -2268,7 +2468,305 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </main>
+        </div>
+
+        <div
+          className={`space-y-3 ${
+            desktopPageTab === "II" ? "hidden lg:block" : "hidden"
+          }`}
+        >
+          <section className="grid items-start gap-3 lg:grid-cols-12">
+            <div className="space-y-3 lg:col-span-8">
+              <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+                <div className="grid gap-3 lg:grid-cols-4">
+                  <div className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                      Spellcasting Ability
+                    </div>
+                    <input
+                      value={sheetData.spellcastingAbility}
+                      onChange={handleChange("spellcastingAbility")}
+                      className="mt-2 w-full rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
+                    />
+                  </div>
+                  <div className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                      Spellcasting Modifier
+                    </div>
+                    <input
+                      value={sheetData.spellcastingModifier}
+                      onChange={handleChange("spellcastingModifier")}
+                      className="mt-2 w-full rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
+                    />
+                  </div>
+                  <div className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                      Spell Save DC
+                    </div>
+                    <input
+                      value={sheetData.spellSaveDc}
+                      onChange={handleChange("spellSaveDc")}
+                      className="mt-2 w-full rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
+                    />
+                  </div>
+                  <div className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                      Spell Attack Bonus
+                    </div>
+                    <input
+                      value={sheetData.spellAttackBonus}
+                      onChange={handleChange("spellAttackBonus")}
+                      className="mt-2 w-full rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+                <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                    Spell Slots
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => (
+                    <div
+                      key={`slot-${level}`}
+                      className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
+                    >
+                      <div className="text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200">
+                        Level {level}
+                      </div>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        <div>
+                          <div className="text-[9px] font-semibold uppercase tracking-wide text-purple-300/80">Total</div>
+                          <input
+                            value={sheetData[`spellSlotsLevel${level}Total` as keyof SheetData] as string}
+                            onChange={(event) =>
+                              setSheetData((prev) => ({
+                                ...prev,
+                                [`spellSlotsLevel${level}Total`]: event.target.value,
+                              }))
+                            }
+                            className="mt-1 w-full rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1 text-center text-xs text-slate-100"
+                          />
+                        </div>
+                        <div>
+                          <div className="text-[9px] font-semibold uppercase tracking-wide text-purple-300/80">Expended</div>
+                          <input
+                            value={sheetData[`spellSlotsLevel${level}Expended` as keyof SheetData] as string}
+                            onChange={(event) =>
+                              setSheetData((prev) => ({
+                                ...prev,
+                                [`spellSlotsLevel${level}Expended`]: event.target.value,
+                              }))
+                            }
+                            className="mt-1 w-full rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1 text-center text-xs text-slate-100"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+                <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                    Cantrips & Prepared Spells (By Level)
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-3">
+                  {spellLevelSections.map((section) => (
+                    <div
+                      key={section.key}
+                      className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
+                    >
+                      <div className="flex items-center justify-between rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200">
+                          {section.label}
+                        </span>
+                        {section.slotLevel ? (
+                          <span className="text-[9px] text-purple-300/80">
+                            {`Slots: ${sheetData[`spellSlotsLevel${section.slotLevel}Total` as keyof SheetData] as string || "—"}/${sheetData[`spellSlotsLevel${section.slotLevel}Expended` as keyof SheetData] as string || "—"}`}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <div className="mt-2 space-y-2">
+                        {(sheetData[section.key] as string[]).map((value: string, index: number) => (
+                          <div key={`${section.key}-${index}`} className="flex items-start gap-2">
+                            <textarea
+                              rows={1}
+                              value={value}
+                              onChange={(event) =>
+                                updateModularItem(section.key, index, event.target.value)
+                              }
+                              className="w-full resize-none rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-xs text-slate-100"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeModularItem(section.key, index)}
+                              className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-xs font-semibold text-red-300 transition hover:border-red-300"
+                              aria-label={`Remove ${section.label} entry`}
+                            >
+                              −
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => addModularItem(section.key)}
+                          className="flex w-full items-center justify-center gap-1 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200 transition hover:border-purple-400"
+                        >
+                          <span className="text-sm leading-none">+</span>
+                          Add Spell
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <aside className="space-y-3 lg:col-span-4">
+              <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+                <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Appearance
+                </div>
+                <textarea
+                  rows={6}
+                  value={sheetData.appearance}
+                  onChange={(event) =>
+                    setSheetData((prev) => ({ ...prev, appearance: event.target.value }))
+                  }
+                  className="mt-2 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+                />
+              </div>
+
+              <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+                <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Backstory & Personality
+                </div>
+                <textarea
+                  rows={8}
+                  value={sheetData.backstoryPersonality}
+                  onChange={(event) =>
+                    setSheetData((prev) => ({
+                      ...prev,
+                      backstoryPersonality: event.target.value,
+                    }))
+                  }
+                  className="mt-2 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+                />
+                <div className="mt-2">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-purple-200">
+                    Alignment
+                  </div>
+                  <input
+                    value={sheetData.alignment}
+                    onChange={handleChange("alignment")}
+                    className="mt-1 w-full rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+                <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Languages
+                </div>
+                <textarea
+                  rows={3}
+                  value={sheetData.languages}
+                  onChange={(event) =>
+                    setSheetData((prev) => ({ ...prev, languages: event.target.value }))
+                  }
+                  className="mt-2 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+                />
+              </div>
+
+              <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+                <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Equipment
+                </div>
+                <textarea
+                  rows={6}
+                  value={sheetData.equipment}
+                  onChange={(event) =>
+                    setSheetData((prev) => ({ ...prev, equipment: event.target.value }))
+                  }
+                  className="mt-2 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+                />
+                <div className="mt-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-purple-200">
+                    Magic Item Attunement
+                  </div>
+                  <div className="mt-2 space-y-2">
+                    {sheetData.magicItemAttunement.map((value: string, index: number) => (
+                      <div key={`attune-${index}`} className="flex items-start gap-2">
+                        <input
+                          value={value}
+                          onChange={(event) =>
+                            updateModularItem("magicItemAttunement", index, event.target.value)
+                          }
+                          className="w-full rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeModularItem("magicItemAttunement", index)}
+                          className="flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-red-300"
+                          aria-label="Remove attunement slot"
+                        >
+                          −
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => addModularItem("magicItemAttunement")}
+                      className="flex w-full items-center justify-center gap-2 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200 transition hover:border-purple-400"
+                    >
+                      <span className="text-sm">+</span>
+                      Add Attunement Slot
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+                <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                  Coins
+                </div>
+                <div className="mt-2 grid grid-cols-5 gap-2">
+                  {[
+                    { key: "coinCp", label: "CP" },
+                    { key: "coinSp", label: "SP" },
+                    { key: "coinEp", label: "EP" },
+                    { key: "coinGp", label: "GP" },
+                    { key: "coinPp", label: "PP" },
+                  ].map((coin) => (
+                    <div key={coin.key}>
+                      <div className="text-center text-[9px] font-semibold uppercase tracking-wide text-purple-300/80">
+                        {coin.label}
+                      </div>
+                      <input
+                        value={sheetData[coin.key as keyof SheetData] as string}
+                        onChange={(event) =>
+                          setSheetData((prev) => ({
+                            ...prev,
+                            [coin.key]: event.target.value,
+                          }))
+                        }
+                        className="mt-1 w-full rounded-md border border-purple-900/60 bg-[#0f0a1c] px-1.5 py-1 text-center text-xs text-slate-100"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </aside>
+          </section>
+        </div>
+      </main>
       <footer className="mx-auto w-full max-w-6xl px-4 pb-6 text-center text-xs text-purple-200/70">
         Created by Elyeet · Inspired by the D&D 2024 Character Sheet ·{" "}
         <a
@@ -2278,6 +2776,30 @@ export default function Home() {
           https://github.com/Elyeet9
         </a>
       </footer>
+
+      {showBackToTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 z-50 hidden h-12 w-12 items-center justify-center rounded-full border border-purple-400/60 bg-[#1f1635]/90 text-xl text-purple-100 shadow-[0_8px_18px_rgba(0,0,0,0.4)] transition hover:border-purple-300 hover:bg-[#2d224d] lg:flex"
+          aria-label="Back to top"
+          title="Back to top"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m18 15-6-6-6 6" />
+          </svg>
+        </button>
+      )}
 
       {/* Responsive Bookmark Tabs */}
       <div className="fixed bottom-6 right-0 z-50 flex flex-col gap-3 lg:hidden pointer-events-none">
