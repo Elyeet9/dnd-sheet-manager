@@ -3501,7 +3501,7 @@ export default function Home() {
           onClick={() => setIsTabMenuOpen((open) => !open)}
           aria-label={isTabMenuOpen ? "Close section menu" : "Open section menu"}
           aria-expanded={isTabMenuOpen}
-          className={`fixed top-4 right-4 z-[70] flex h-12 w-12 items-center justify-center rounded-full border bg-[#1f1635]/90 text-purple-100 shadow-[0_8px_18px_rgba(0,0,0,0.45)] backdrop-blur-sm transition-colors ${
+          className={`fixed top-4 right-4 z-70 flex h-12 w-12 items-center justify-center rounded-full border bg-[#1f1635]/90 text-purple-100 shadow-[0_8px_18px_rgba(0,0,0,0.45)] backdrop-blur-sm transition-colors ${
             isTabMenuOpen
               ? "border-purple-400/80"
               : "border-purple-900/60 hover:border-purple-300 hover:bg-[#2d224d]"
@@ -3530,18 +3530,18 @@ export default function Home() {
         <div
           onClick={() => setIsTabMenuOpen(false)}
           aria-hidden="true"
-          className={`fixed inset-0 z-[60] bg-[#0a0612]/70 backdrop-blur-sm transition-opacity duration-300 ${
+          className={`fixed inset-0 z-60 bg-[#0a0612]/70 backdrop-blur-sm transition-opacity duration-300 ${
             isTabMenuOpen ? "opacity-100" : "pointer-events-none opacity-0"
           }`}
         />
 
         {/* Sliding panel */}
         <div
-          className={`fixed right-0 top-0 z-[65] h-full w-72 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          className={`fixed right-0 top-0 z-65 h-full w-72 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             isTabMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
-          <div className="relative h-full border-l border-purple-900/60 bg-gradient-to-b from-[#161029] to-[#0f0a1c] px-5 pt-20 shadow-[-14px_0_36px_rgba(0,0,0,0.5)]">
+          <div className="relative h-full border-l border-purple-900/60 bg-linear-to-b from-[#161029] to-[#0f0a1c] px-5 pt-20 shadow-[-14px_0_36px_rgba(0,0,0,0.5)]">
             <p
               className={`mb-7 text-center text-xs uppercase tracking-[0.3em] text-purple-300/80 ${titleFont.className}`}
             >
@@ -3549,7 +3549,7 @@ export default function Home() {
             </p>
             <div className="relative mx-auto w-full max-w-[16rem]">
               {/* Hanging rod */}
-              <div className="absolute -top-1.5 left-0 right-0 h-1.5 rounded-full bg-gradient-to-r from-purple-900 via-purple-400 to-purple-900 shadow-[0_2px_8px_rgba(0,0,0,0.55)]" />
+              <div className="absolute -top-1.5 left-0 right-0 h-1.5 rounded-full bg-linear-to-r from-purple-900 via-purple-400 to-purple-900 shadow-[0_2px_8px_rgba(0,0,0,0.55)]" />
               <div className="absolute -top-2 -left-1 h-3.5 w-3.5 rounded-full border border-purple-700 bg-[#0f0a1c]" />
               <div className="absolute -top-2 -right-1 h-3.5 w-3.5 rounded-full border border-purple-700 bg-[#0f0a1c]" />
               {/* Hanging flags */}
@@ -3573,8 +3573,8 @@ export default function Home() {
                         isTabMenuOpen ? "flag-hang" : "opacity-0"
                       } ${
                         isActive
-                          ? "border-purple-400/80 bg-gradient-to-b from-purple-600/55 to-purple-800/30 text-white shadow-[0_6px_20px_rgba(147,51,234,0.35)]"
-                          : "border-purple-900/70 bg-gradient-to-b from-[#1f1635] to-[#160f29] text-purple-300 hover:from-[#2d224d] hover:text-purple-100"
+                          ? "border-purple-400/80 bg-linear-to-b from-purple-600/55 to-purple-800/30 text-white shadow-[0_6px_20px_rgba(147,51,234,0.35)]"
+                          : "border-purple-900/70 bg-linear-to-b from-[#1f1635] to-[#160f29] text-purple-300 hover:from-[#2d224d] hover:text-purple-100"
                       }`}
                       title={tab.label}
                       aria-current={isActive ? "page" : undefined}
