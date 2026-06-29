@@ -25,3 +25,31 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes flag-hang {
+  0% {
+    transform: translateY(-1.75rem) rotate(0deg);
+    opacity: 0;
+  }
+  45% {
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(0) rotate(3.5deg);
+  }
+  76% {
+    transform: translateY(0) rotate(-2.5deg);
+  }
+  88% {
+    transform: translateY(0) rotate(1.25deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.flag-hang {
+  transform-origin: top center;
+  animation: flag-hang 750ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}

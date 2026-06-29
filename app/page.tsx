@@ -291,12 +291,16 @@ const storageKey = "dnd-sheet-2024-v1";
 
 export default function Home() {
   const [sheetData, setSheetData] = useState<SheetData>(defaultSheetData);
-  const [activeTab, setActiveTab] = useState<"info" | "combat" | "features">("info");
+  const [activeTab, setActiveTab] = useState<
+    "info" | "combat" | "features" | "lore"
+  >("info");
   const [desktopPageTab, setDesktopPageTab] = useState<"I" | "II">("I");
   const [hasHydrated, setHasHydrated] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [isTabMenuOpen, setIsTabMenuOpen] = useState(false);
   const loadInputRef = useRef<HTMLInputElement | null>(null);
   const appearanceImageInputRef = useRef<HTMLInputElement | null>(null);
+  const mobileAppearanceImageInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const dragDepthRef = useRef(0);
 
@@ -433,6 +437,19 @@ export default function Home() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!isTabMenuOpen) {
+      return;
+    }
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsTabMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isTabMenuOpen]);
 
   const handleDownload = () => {
     if (typeof window === "undefined") {
@@ -917,6 +934,41 @@ export default function Home() {
     </div>
   );
 
+  const mobileTabs: {
+    key: "info" | "combat" | "features" | "lore";
+    label: string;
+    icon: React.ReactNode;
+  }[] = [
+    {
+      key: "info",
+      label: "Info",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      ),
+    },
+    {
+      key: "combat",
+      label: "Combat",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 8.5-8.5-1.5-1.5L11.5 17.5z"/><path d="m8 14 7-7"/><path d="m11 17 7-7"/></svg>
+      ),
+    },
+    {
+      key: "features",
+      label: "Features",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+      ),
+    },
+    {
+      key: "lore",
+      label: "Details",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      ),
+    },
+  ];
+
   return (
     <div
       className="flex min-h-screen flex-col bg-[#140d24] text-slate-100"
@@ -1042,7 +1094,7 @@ export default function Home() {
           }`}
         >
           <section className="flex flex-col gap-3 lg:grid lg:grid-cols-12 lg:gap-3">
-          <div className={`flex flex-col gap-3 md:flex-row md:items-stretch lg:contents ${activeTab === "combat" || activeTab === "features" ? "hidden lg:contents" : "flex"}`}>
+          <div className={`flex flex-col gap-3 md:flex-row md:items-stretch lg:contents ${activeTab === "info" ? "flex" : "hidden lg:contents"}`}>
             {/* Character Header: Main Info Box */}
             <div className="h-full flex-1 rounded-xl border border-purple-900/60 bg-[#1f1635] p-3 shadow-sm md:flex-2 lg:col-span-4 lg:h-40">
               <div className="flex flex-col gap-2">
@@ -1193,7 +1245,7 @@ export default function Home() {
           </div>
 
           {/* Character Header: HP, Hit Dice, Death Saves (Combined Box) */}
-          <div className={`h-40 rounded-xl border border-purple-900/60 bg-[#1f1635] p-1.5 shadow-sm md:col-span-12 lg:col-span-6 ${activeTab === "info" || activeTab === "features" ? "hidden lg:block" : "block"}`}>
+          <div className={`h-40 rounded-xl border border-purple-900/60 bg-[#1f1635] p-1.5 shadow-sm md:col-span-12 lg:col-span-6 ${activeTab === "combat" ? "block" : "hidden lg:block"}`}>
             <div className="grid h-full grid-cols-12 gap-1 px-0.5 pb-0.5">
               {/* Hit Points Sub-box */}
               <div className="col-span-6 flex h-full flex-col overflow-hidden rounded-lg border border-purple-900/60 bg-[#140d24]">
@@ -1505,6 +1557,223 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          <div className="mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+            <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                Spellcasting
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-purple-200">
+                  Spellcasting Ability
+                </div>
+                <select
+                  value={sheetData.spellcastingAbility}
+                  onChange={handleChange("spellcastingAbility")}
+                  className="mt-2 w-full rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
+                >
+                  <option value="">Select ability</option>
+                  {abilityKeys.map((abilityKey) => (
+                    <option key={abilityKey} value={abilityKey}>
+                      {abilityLabels[abilityKey]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-purple-200">
+                  Spellcasting Modifier
+                </div>
+                <input
+                  value={spellcastingModifierDisplay}
+                  readOnly
+                  className="mt-2 w-full rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
+                />
+              </div>
+              <div className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-purple-200">
+                  Spell Save DC
+                </div>
+                <div className="mt-2 flex flex-col items-center justify-center gap-2 rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-2">
+                  <div className="text-2xl font-semibold text-slate-100">
+                    {spellSaveDcTotal !== null ? `${spellSaveDcTotal}` : "—"}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => adjustNumeric("spellSaveDcAdjust", -1)}
+                      className="h-7 w-7 rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-purple-400"
+                      aria-label="Decrease spell save DC bonus"
+                    >
+                      −
+                    </button>
+                    <span
+                      className={`text-sm font-semibold ${
+                        sheetData.spellSaveDcAdjust >= 0
+                          ? "text-emerald-300"
+                          : "text-red-300"
+                      }`}
+                    >
+                      {sheetData.spellSaveDcAdjust >= 0
+                        ? `+${sheetData.spellSaveDcAdjust}`
+                        : `${sheetData.spellSaveDcAdjust}`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => adjustNumeric("spellSaveDcAdjust", 1)}
+                      className="h-7 w-7 rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-emerald-300 transition hover:border-purple-400"
+                      aria-label="Increase spell save DC bonus"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-purple-200">
+                  Spell Attack Bonus
+                </div>
+                <div className="mt-2 flex flex-col items-center justify-center gap-2 rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-2">
+                  <div className="text-2xl font-semibold text-slate-100">
+                    {spellAttackBonusTotal !== null
+                      ? `${spellAttackBonusTotal >= 0 ? "+" : ""}${spellAttackBonusTotal}`
+                      : "—"}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => adjustNumeric("spellAttackBonusAdjust", -1)}
+                      className="h-7 w-7 rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-purple-400"
+                      aria-label="Decrease spell attack bonus"
+                    >
+                      −
+                    </button>
+                    <span
+                      className={`text-sm font-semibold ${
+                        sheetData.spellAttackBonusAdjust >= 0
+                          ? "text-emerald-300"
+                          : "text-red-300"
+                      }`}
+                    >
+                      {sheetData.spellAttackBonusAdjust >= 0
+                        ? `+${sheetData.spellAttackBonusAdjust}`
+                        : `${sheetData.spellAttackBonusAdjust}`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => adjustNumeric("spellAttackBonusAdjust", 1)}
+                      className="h-7 w-7 rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-emerald-300 transition hover:border-purple-400"
+                      aria-label="Increase spell attack bonus"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+            <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                Cantrips & Prepared Spells (By Level)
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+              {spellLevelSections.map((section) => {
+                const maxSlots = section.slotLevel
+                  ? spellSlotDiamondsByLevel[section.slotLevel]
+                  : 0;
+                const expendedKey = section.slotLevel
+                  ? (`spellSlotsLevel${section.slotLevel}Expended` as keyof SheetData)
+                  : null;
+                const currentExpended = expendedKey
+                  ? Math.max(
+                      0,
+                      Math.min(
+                        maxSlots,
+                        Number.parseInt(
+                          String(sheetData[expendedKey] ?? "0"),
+                          10,
+                        ) || 0,
+                      ),
+                    )
+                  : 0;
+
+                return (
+                  <div
+                    key={`mobile-${section.key}`}
+                    className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
+                  >
+                    <div className="rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200">
+                          {section.label}
+                        </span>
+                        {section.slotLevel ? (
+                          <div className="flex items-center gap-1.5">
+                            {Array.from({ length: maxSlots }).map((_, index) => (
+                              <button
+                                key={`mobile-${section.key}-slot-${index}`}
+                                type="button"
+                                onClick={() => {
+                                  const nextExpended =
+                                    index < currentExpended ? index : index + 1;
+                                  setSheetData((prev) => ({
+                                    ...prev,
+                                    [`spellSlotsLevel${section.slotLevel}Expended`]: String(nextExpended),
+                                  }));
+                                }}
+                                className={`h-3.5 w-3.5 rotate-45 border transition-all ${
+                                  index < currentExpended
+                                    ? "border-none bg-purple-400 [box-shadow:0_0_6px_rgba(168,85,247,0.45)]"
+                                    : "border-purple-500/40 bg-transparent"
+                                }`}
+                                aria-label={`${section.label} spell slot ${index + 1}`}
+                              />
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className="mt-2 space-y-2">
+                      {(sheetData[section.key] as string[]).map((value: string, index: number) => (
+                        <div key={`mobile-${section.key}-${index}`} className="flex items-start gap-2">
+                          <textarea
+                            rows={1}
+                            value={value}
+                            onChange={(event) =>
+                              updateModularItem(section.key, index, event.target.value)
+                            }
+                            className="w-full resize-none rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-xs text-slate-100"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeModularItem(section.key, index)}
+                            className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-xs font-semibold text-red-300 transition hover:border-red-300"
+                            aria-label={`Remove ${section.label} entry`}
+                          >
+                            −
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => addModularItem(section.key)}
+                        className="flex w-full items-center justify-center gap-1 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200 transition hover:border-purple-400"
+                      >
+                        <span className="text-sm leading-none">+</span>
+                        Add Spell
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </section>
 
         <section className={`lg:hidden ${activeTab === "features" ? "block" : "hidden"}`}>
@@ -1699,6 +1968,198 @@ export default function Home() {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className={`lg:hidden ${activeTab === "lore" ? "block" : "hidden"}`}>
+          <div className="mt-1 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+            <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                Appearance
+              </div>
+            </div>
+            <input
+              ref={mobileAppearanceImageInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAppearanceImageChange}
+              className="hidden"
+            />
+            <div className="mt-3 rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
+              {sheetData.appearanceImage ? (
+                <img
+                  src={sheetData.appearanceImage}
+                  alt="Character appearance"
+                  className="block h-auto w-full rounded-md border border-purple-900/60"
+                />
+              ) : (
+                <div className="flex h-40 w-full items-center justify-center rounded-md border border-dashed border-purple-900/60 text-xs uppercase tracking-[0.14em] text-purple-300/80">
+                  No image selected
+                </div>
+              )}
+              <div className="mt-2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => mobileAppearanceImageInputRef.current?.click()}
+                  className="flex-1 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200 transition hover:border-purple-400"
+                >
+                  {sheetData.appearanceImage ? "Change Image" : "Add Image"}
+                </button>
+                {sheetData.appearanceImage ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSheetData((prev) => ({
+                        ...prev,
+                        appearanceImage: "",
+                      }))
+                    }
+                    className="rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-300 transition hover:border-red-300"
+                  >
+                    Remove
+                  </button>
+                ) : null}
+              </div>
+            </div>
+            <textarea
+              rows={6}
+              value={sheetData.appearance}
+              onChange={(event) =>
+                setSheetData((prev) => ({ ...prev, appearance: event.target.value }))
+              }
+              placeholder="Height, build, distinguishing features…"
+              className="mt-3 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+            />
+          </div>
+
+          <div className="mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+            <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                Backstory & Personality
+              </div>
+            </div>
+            <textarea
+              rows={8}
+              value={sheetData.backstoryPersonality}
+              onChange={(event) =>
+                setSheetData((prev) => ({
+                  ...prev,
+                  backstoryPersonality: event.target.value,
+                }))
+              }
+              placeholder="History, personality traits, ideals, bonds, flaws…"
+              className="mt-3 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+            />
+            <div className="mt-3">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-purple-200">
+                Alignment
+              </div>
+              <input
+                value={sheetData.alignment}
+                onChange={handleChange("alignment")}
+                className="mt-1 w-full rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
+              />
+            </div>
+          </div>
+
+          <div className="mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+            <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                Languages
+              </div>
+            </div>
+            <textarea
+              rows={3}
+              value={sheetData.languages}
+              onChange={(event) =>
+                setSheetData((prev) => ({ ...prev, languages: event.target.value }))
+              }
+              className="mt-3 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+            />
+          </div>
+
+          <div className="mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+            <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                Equipment & Attunement
+              </div>
+            </div>
+            <textarea
+              rows={6}
+              value={sheetData.equipment}
+              onChange={(event) =>
+                setSheetData((prev) => ({ ...prev, equipment: event.target.value }))
+              }
+              placeholder="Gear, tools, and carried items…"
+              className="mt-3 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+            />
+            <div className="mt-3">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-purple-200">
+                Magic Item Attunement
+              </div>
+              <div className="mt-2 space-y-2">
+                {sheetData.magicItemAttunement.map((value: string, index: number) => (
+                  <div key={`mobile-attune-${index}`} className="flex items-start gap-2">
+                    <input
+                      value={value}
+                      onChange={(event) =>
+                        updateModularItem("magicItemAttunement", index, event.target.value)
+                      }
+                      className="w-full rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-sm text-slate-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeModularItem("magicItemAttunement", index)}
+                      className="flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-red-300"
+                      aria-label="Remove attunement slot"
+                    >
+                      −
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => addModularItem("magicItemAttunement")}
+                  className="flex w-full items-center justify-center gap-2 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200 transition hover:border-purple-400"
+                >
+                  <span className="text-sm">+</span>
+                  Add Attunement Slot
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+            <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
+                Coins
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-5 gap-2">
+              {[
+                { key: "coinCp", label: "CP" },
+                { key: "coinSp", label: "SP" },
+                { key: "coinEp", label: "EP" },
+                { key: "coinGp", label: "GP" },
+                { key: "coinPp", label: "PP" },
+              ].map((coin) => (
+                <div key={`mobile-${coin.key}`}>
+                  <div className="text-center text-[9px] font-semibold uppercase tracking-wide text-purple-300/80">
+                    {coin.label}
+                  </div>
+                  <input
+                    value={sheetData[coin.key as keyof SheetData] as string}
+                    onChange={(event) =>
+                      setSheetData((prev) => ({
+                        ...prev,
+                        [coin.key]: event.target.value,
+                      }))
+                    }
+                    className="mt-1 w-full rounded-md border border-purple-900/60 bg-[#0f0a1c] px-1.5 py-1 text-center text-xs text-slate-100"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -2048,7 +2509,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className={`rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm ${activeTab === "combat" || activeTab === "features" ? "hidden lg:block" : "block"}`}>
+            <div className={`rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm ${activeTab === "info" ? "block" : "hidden lg:block"}`}>
               <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                   Equipment Training & Proficiencies
@@ -2128,7 +2589,7 @@ export default function Home() {
           </aside>
 
           <div className="flex flex-col gap-3 md:col-span-12 lg:col-span-8">
-            <div className={`rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm ${activeTab === "combat" || activeTab === "features" ? "hidden lg:block" : "block"}`}>
+            <div className={`rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 shadow-sm ${activeTab === "info" ? "block" : "hidden lg:block"}`}>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="flex h-full flex-col rounded-lg border border-purple-900/60 bg-[#140d24] p-2">
                 <div className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
@@ -2246,7 +2707,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className={`mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 ${activeTab === "info" || activeTab === "features" ? "hidden lg:block" : "block"}`}>
+            <div className={`mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 ${activeTab === "combat" ? "block" : "hidden lg:block"}`}>
               <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                   Weapons & Damage Cantrips
@@ -2388,7 +2849,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className={`mt-4 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 ${activeTab === "info" || activeTab === "combat" ? "hidden lg:block" : "block"}`}>
+            <div className={`mt-4 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 ${activeTab === "features" ? "block" : "hidden lg:block"}`}>
               <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
                   Class Features
@@ -2473,7 +2934,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className={`mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2 ${activeTab === "info" || activeTab === "combat" ? "hidden lg:grid" : "grid"}`}>
+            <div className={`mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2 ${activeTab === "features" ? "grid" : "hidden lg:grid"}`}>
               <div className="rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
                 <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
@@ -3032,61 +3493,112 @@ export default function Home() {
         </button>
       )}
 
-      {/* Responsive Bookmark Tabs */}
-      <div className="fixed bottom-6 right-0 z-50 flex flex-col gap-3 lg:hidden pointer-events-none">
+      {/* Mobile Tab Menu */}
+      <div className="lg:hidden">
+        {/* Toggle button */}
         <button
-          onClick={() => setActiveTab("info")}
-          className={`group relative flex h-12 w-16 items-center justify-center transition-all duration-300 border-l border-t border-b pointer-events-auto ${
-            activeTab === "info"
-              ? "bg-purple-600/40 text-white shadow-[-4px_0_12px_rgba(147,51,234,0.2)] border-purple-400/80 translate-x-0"
-              : "bg-[#1f1635]/40 text-purple-300 hover:bg-[#2d224d]/40 border-purple-900/80 translate-x-10 hover:translate-x-4"
+          type="button"
+          onClick={() => setIsTabMenuOpen((open) => !open)}
+          aria-label={isTabMenuOpen ? "Close section menu" : "Open section menu"}
+          aria-expanded={isTabMenuOpen}
+          className={`fixed top-4 right-4 z-[70] flex h-12 w-12 items-center justify-center rounded-full border bg-[#1f1635]/90 text-purple-100 shadow-[0_8px_18px_rgba(0,0,0,0.45)] backdrop-blur-sm transition-colors ${
+            isTabMenuOpen
+              ? "border-purple-400/80"
+              : "border-purple-900/60 hover:border-purple-300 hover:bg-[#2d224d]"
           }`}
-          style={{
-            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 25% 50%)",
-          }}
-          title="Character Info"
         >
-          <div className="ml-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </div>
-          <span className="absolute right-full mr-3 hidden rounded-md bg-purple-900 px-2 py-1 text-xs whitespace-nowrap group-hover:block">Info</span>
+          <span className="relative block h-4 w-5">
+            <span
+              className={`absolute left-0 top-0 h-0.5 w-5 rounded-full bg-current transition-all duration-300 ${
+                isTabMenuOpen ? "top-1/2 -translate-y-1/2 rotate-45" : ""
+              }`}
+            />
+            <span
+              className={`absolute left-0 top-1/2 h-0.5 w-5 -translate-y-1/2 rounded-full bg-current transition-all duration-300 ${
+                isTabMenuOpen ? "opacity-0" : "opacity-100"
+              }`}
+            />
+            <span
+              className={`absolute bottom-0 left-0 h-0.5 w-5 rounded-full bg-current transition-all duration-300 ${
+                isTabMenuOpen ? "bottom-1/2 translate-y-1/2 -rotate-45" : ""
+              }`}
+            />
+          </span>
         </button>
 
-        <button
-          onClick={() => setActiveTab("combat")}
-          className={`group relative flex h-12 w-16 items-center justify-center transition-all duration-300 border-l border-t border-b pointer-events-auto ${
-            activeTab === "combat"
-              ? "bg-purple-600/40 text-white shadow-[-4px_0_12px_rgba(147,51,234,0.2)] border-purple-400/80 translate-x-0"
-              : "bg-[#1f1635]/40 text-purple-300 hover:bg-[#2d224d]/40 border-purple-900/80 translate-x-10 hover:translate-x-4"
+        {/* Backdrop */}
+        <div
+          onClick={() => setIsTabMenuOpen(false)}
+          aria-hidden="true"
+          className={`fixed inset-0 z-[60] bg-[#0a0612]/70 backdrop-blur-sm transition-opacity duration-300 ${
+            isTabMenuOpen ? "opacity-100" : "pointer-events-none opacity-0"
           }`}
-          style={{
-            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 25% 50%)",
-          }}
-          title="Combat"
-        >
-          <div className="ml-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 8.5-8.5-1.5-1.5L11.5 17.5z"/><path d="m8 14 7-7"/><path d="m11 17 7-7"/></svg>
-          </div>
-          <span className="absolute right-full mr-3 hidden rounded-md bg-purple-900 px-2 py-1 text-xs whitespace-nowrap group-hover:block">Combat</span>
-        </button>
+        />
 
-        <button
-          onClick={() => setActiveTab("features")}
-          className={`group relative flex h-12 w-16 items-center justify-center transition-all duration-300 border-l border-t border-b pointer-events-auto ${
-            activeTab === "features"
-              ? "bg-purple-600/40 text-white shadow-[-4px_0_12px_rgba(147,51,234,0.2)] border-purple-400/80 translate-x-0"
-              : "bg-[#1f1635]/40 text-purple-300 hover:bg-[#2d224d]/40 border-purple-900/80 translate-x-10 hover:translate-x-4"
+        {/* Sliding panel */}
+        <div
+          className={`fixed right-0 top-0 z-[65] h-full w-72 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            isTabMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
-          style={{
-            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 25% 50%)",
-          }}
-          title="Features & Traits"
         >
-          <div className="ml-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          <div className="relative h-full border-l border-purple-900/60 bg-gradient-to-b from-[#161029] to-[#0f0a1c] px-5 pt-20 shadow-[-14px_0_36px_rgba(0,0,0,0.5)]">
+            <p
+              className={`mb-7 text-center text-xs uppercase tracking-[0.3em] text-purple-300/80 ${titleFont.className}`}
+            >
+              Sections
+            </p>
+            <div className="relative mx-auto w-full max-w-[16rem]">
+              {/* Hanging rod */}
+              <div className="absolute -top-1.5 left-0 right-0 h-1.5 rounded-full bg-gradient-to-r from-purple-900 via-purple-400 to-purple-900 shadow-[0_2px_8px_rgba(0,0,0,0.55)]" />
+              <div className="absolute -top-2 -left-1 h-3.5 w-3.5 rounded-full border border-purple-700 bg-[#0f0a1c]" />
+              <div className="absolute -top-2 -right-1 h-3.5 w-3.5 rounded-full border border-purple-700 bg-[#0f0a1c]" />
+              {/* Hanging flags */}
+              <div className="flex items-start justify-between gap-1.5 pt-1">
+                {mobileTabs.map((tab, index) => {
+                  const isActive = activeTab === tab.key;
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      onClick={() => {
+                        setActiveTab(tab.key);
+                        setIsTabMenuOpen(false);
+                      }}
+                      style={{
+                        clipPath:
+                          "polygon(0% 0%, 100% 0%, 100% 86%, 50% 100%, 0% 86%)",
+                        animationDelay: `${index * 90 + 140}ms`,
+                      }}
+                      className={`group relative flex h-40 flex-1 flex-col items-center gap-2 border pt-4 transition-colors duration-300 ${
+                        isTabMenuOpen ? "flag-hang" : "opacity-0"
+                      } ${
+                        isActive
+                          ? "border-purple-400/80 bg-gradient-to-b from-purple-600/55 to-purple-800/30 text-white shadow-[0_6px_20px_rgba(147,51,234,0.35)]"
+                          : "border-purple-900/70 bg-gradient-to-b from-[#1f1635] to-[#160f29] text-purple-300 hover:from-[#2d224d] hover:text-purple-100"
+                      }`}
+                      title={tab.label}
+                      aria-current={isActive ? "page" : undefined}
+                    >
+                      {/* Ring fastening the flag to the rod */}
+                      <span
+                        className={`absolute -top-2 left-1/2 h-2.5 w-2.5 -translate-x-1/2 rounded-full border bg-[#0f0a1c] ${
+                          isActive ? "border-purple-300" : "border-purple-600"
+                        }`}
+                      />
+                      <span className="[&_svg]:h-5 [&_svg]:w-5">{tab.icon}</span>
+                      <span className="text-center text-[0.55rem] font-semibold uppercase tracking-[0.08em]">
+                        {tab.label}
+                      </span>
+                      {isActive && (
+                        <span className="mt-auto mb-3 h-1.5 w-1.5 rounded-full bg-purple-200 shadow-[0_0_8px_rgba(216,180,254,0.8)]" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-          <span className="absolute right-full mr-3 hidden rounded-md bg-purple-900 px-2 py-1 text-xs whitespace-nowrap group-hover:block">Features</span>
-        </button>
+        </div>
       </div>
     </div>
   );
