@@ -934,6 +934,12 @@ export default function Home() {
     </div>
   );
 
+  const autoSizeTextarea = (element: HTMLTextAreaElement | null) => {
+    if (!element) return;
+    element.style.height = "auto";
+    element.style.height = `${element.scrollHeight}px`;
+  };
+
   const mobileTabs: {
     key: "info" | "combat" | "features" | "lore";
     label: string;
@@ -2024,12 +2030,14 @@ export default function Home() {
             </div>
             <textarea
               rows={6}
+              ref={(element) => autoSizeTextarea(element)}
+              onInput={(event) => autoSizeTextarea(event.currentTarget)}
               value={sheetData.appearance}
               onChange={(event) =>
                 setSheetData((prev) => ({ ...prev, appearance: event.target.value }))
               }
               placeholder="Height, build, distinguishing features…"
-              className="mt-3 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+              className="mt-3 w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
             />
           </div>
 
@@ -2041,6 +2049,8 @@ export default function Home() {
             </div>
             <textarea
               rows={8}
+              ref={(element) => autoSizeTextarea(element)}
+              onInput={(event) => autoSizeTextarea(event.currentTarget)}
               value={sheetData.backstoryPersonality}
               onChange={(event) =>
                 setSheetData((prev) => ({
@@ -2049,7 +2059,7 @@ export default function Home() {
                 }))
               }
               placeholder="History, personality traits, ideals, bonds, flaws…"
-              className="mt-3 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+              className="mt-3 w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
             />
             <div className="mt-3">
               <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-purple-200">
@@ -2071,11 +2081,13 @@ export default function Home() {
             </div>
             <textarea
               rows={3}
+              ref={(element) => autoSizeTextarea(element)}
+              onInput={(event) => autoSizeTextarea(event.currentTarget)}
               value={sheetData.languages}
               onChange={(event) =>
                 setSheetData((prev) => ({ ...prev, languages: event.target.value }))
               }
-              className="mt-3 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+              className="mt-3 w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
             />
           </div>
 
@@ -2087,12 +2099,14 @@ export default function Home() {
             </div>
             <textarea
               rows={6}
+              ref={(element) => autoSizeTextarea(element)}
+              onInput={(event) => autoSizeTextarea(event.currentTarget)}
               value={sheetData.equipment}
               onChange={(event) =>
                 setSheetData((prev) => ({ ...prev, equipment: event.target.value }))
               }
               placeholder="Gear, tools, and carried items…"
-              className="mt-3 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+              className="mt-3 w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
             />
             <div className="mt-3">
               <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-purple-200">
@@ -3328,11 +3342,13 @@ export default function Home() {
                 </div>
                 <textarea
                   rows={6}
+                  ref={(element) => autoSizeTextarea(element)}
+                  onInput={(event) => autoSizeTextarea(event.currentTarget)}
                   value={sheetData.appearance}
                   onChange={(event) =>
                     setSheetData((prev) => ({ ...prev, appearance: event.target.value }))
                   }
-                  className="mt-2 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+                  className="mt-2 w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
                 />
               </div>
 
@@ -3342,6 +3358,8 @@ export default function Home() {
                 </div>
                 <textarea
                   rows={8}
+                  ref={(element) => autoSizeTextarea(element)}
+                  onInput={(event) => autoSizeTextarea(event.currentTarget)}
                   value={sheetData.backstoryPersonality}
                   onChange={(event) =>
                     setSheetData((prev) => ({
@@ -3349,7 +3367,7 @@ export default function Home() {
                       backstoryPersonality: event.target.value,
                     }))
                   }
-                  className="mt-2 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+                  className="mt-2 w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
                 />
                 <div className="mt-2">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-purple-200">
@@ -3369,11 +3387,13 @@ export default function Home() {
                 </div>
                 <textarea
                   rows={3}
+                  ref={(element) => autoSizeTextarea(element)}
+                  onInput={(event) => autoSizeTextarea(event.currentTarget)}
                   value={sheetData.languages}
                   onChange={(event) =>
                     setSheetData((prev) => ({ ...prev, languages: event.target.value }))
                   }
-                  className="mt-2 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+                  className="mt-2 w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
                 />
               </div>
 
@@ -3383,11 +3403,13 @@ export default function Home() {
                 </div>
                 <textarea
                   rows={6}
+                  ref={(element) => autoSizeTextarea(element)}
+                  onInput={(event) => autoSizeTextarea(event.currentTarget)}
                   value={sheetData.equipment}
                   onChange={(event) =>
                     setSheetData((prev) => ({ ...prev, equipment: event.target.value }))
                   }
-                  className="mt-2 w-full resize-none rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
+                  className="mt-2 w-full resize-none overflow-hidden rounded-lg border border-purple-900/60 bg-[#0f0a1c] px-3 py-2 text-sm text-slate-100"
                 />
                 <div className="mt-3">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-purple-200">
