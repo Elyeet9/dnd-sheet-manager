@@ -982,6 +982,7 @@ export default function Home() {
               onClick={handleNewCharacter}
               className="rounded-md border border-purple-900/60 bg-[#0f0a1c] px-4 py-2 text-sm font-semibold text-purple-200 transition hover:border-purple-400 disabled:cursor-not-allowed disabled:opacity-60"
               disabled={!hasHydrated}
+              suppressHydrationWarning
             >
               New Character
             </button>
@@ -997,6 +998,7 @@ export default function Home() {
               onClick={handleDownload}
               className="rounded-md bg-purple-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-purple-400 disabled:cursor-not-allowed disabled:bg-purple-900"
               disabled={!hasHydrated}
+              suppressHydrationWarning
             >
               Save JSON
             </button>
