@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Cinzel_Decorative } from "next/font/google";
 import Swal from "sweetalert2";
+import SortableSpellList from "./SortableSpellList";
 
 type SheetData = {
   characterName: string;
@@ -1745,36 +1746,13 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="mt-2 space-y-2">
-                      {(sheetData[section.key] as string[]).map((value: string, index: number) => (
-                        <div key={`mobile-${section.key}-${index}`} className="flex items-start gap-2">
-                          <textarea
-                            rows={1}
-                            value={value}
-                            onChange={(event) =>
-                              updateModularItem(section.key, index, event.target.value)
-                            }
-                            className="w-full resize-none rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-xs text-slate-100"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeModularItem(section.key, index)}
-                            className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-xs font-semibold text-red-300 transition hover:border-red-300"
-                            aria-label={`Remove ${section.label} entry`}
-                          >
-                            −
-                          </button>
-                        </div>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={() => addModularItem(section.key)}
-                        className="flex w-full items-center justify-center gap-1 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200 transition hover:border-purple-400"
-                      >
-                        <span className="text-sm leading-none">+</span>
-                        Add Spell
-                      </button>
-                    </div>
+                    <SortableSpellList
+                      values={sheetData[section.key] as string[]}
+                      onChange={(next) =>
+                        setSheetData((prev) => ({ ...prev, [section.key]: next }))
+                      }
+                      removeLabel={`Remove ${section.label} entry`}
+                    />
                   </div>
                 );
               })}
@@ -3253,36 +3231,16 @@ export default function Home() {
                               </div>
                             </div>
 
-                            <div className="mt-2 space-y-2">
-                              {(sheetData[section.key] as string[]).map((value: string, index: number) => (
-                                <div key={`${section.key}-${index}`} className="flex items-start gap-2">
-                                  <textarea
-                                    rows={1}
-                                    value={value}
-                                    onChange={(event) =>
-                                      updateModularItem(section.key, index, event.target.value)
-                                    }
-                                    className="w-full resize-none rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-xs text-slate-100"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() => removeModularItem(section.key, index)}
-                                    className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-xs font-semibold text-red-300 transition hover:border-red-300"
-                                    aria-label={`Remove ${section.label} entry`}
-                                  >
-                                    −
-                                  </button>
-                                </div>
-                              ))}
-                              <button
-                                type="button"
-                                onClick={() => addModularItem(section.key)}
-                                className="flex w-full items-center justify-center gap-1 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200 transition hover:border-purple-400"
-                              >
-                                <span className="text-sm leading-none">+</span>
-                                Add Spell
-                              </button>
-                            </div>
+                            <SortableSpellList
+                              values={sheetData[section.key] as string[]}
+                              onChange={(next) =>
+                                setSheetData((prev) => ({
+                                  ...prev,
+                                  [section.key]: next,
+                                }))
+                              }
+                              removeLabel={`Remove ${section.label} entry`}
+                            />
                           </div>
                         );
                       })}
