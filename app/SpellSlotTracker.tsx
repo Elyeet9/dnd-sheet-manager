@@ -74,6 +74,7 @@ export default function SpellSlotTracker({
       <div className="flex items-center gap-0.5">
         <button
           type="button"
+          suppressHydrationWarning
           onClick={() => onChangeMax(clampedMax - 1)}
           disabled={clampedMax <= 0}
           className="flex h-4 w-4 items-center justify-center rounded border border-purple-900/60 bg-[#0f0a1c] text-[11px] leading-none font-semibold text-red-300 transition hover:border-red-300 disabled:cursor-not-allowed disabled:opacity-40"
