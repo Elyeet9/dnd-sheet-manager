@@ -9,6 +9,9 @@ import SpellSlotHelper, {
   slotsForCaster,
   type CasterType,
 } from "./SpellSlotHelper";
+import AdditionalResources, {
+  type ResourceEntry,
+} from "./AdditionalResources";
 
 type SheetData = {
   characterName: string;
@@ -99,6 +102,7 @@ type SheetData = {
   spellSlotsLevel7Max: string;
   spellSlotsLevel8Max: string;
   spellSlotsLevel9Max: string;
+  additionalResources: ResourceEntry[];
 };
 
 type SkillKey =
@@ -309,6 +313,7 @@ const defaultSheetData: SheetData = {
   spellSlotsLevel7Max: "0",
   spellSlotsLevel8Max: "0",
   spellSlotsLevel9Max: "0",
+  additionalResources: [],
 };
 
 const storageKey = "dnd-sheet-2024-v1";
@@ -432,6 +437,16 @@ export default function Home() {
     spellSlotsLevel7Max: partial.spellSlotsLevel7Max ?? "0",
     spellSlotsLevel8Max: partial.spellSlotsLevel8Max ?? "0",
     spellSlotsLevel9Max: partial.spellSlotsLevel9Max ?? "0",
+    additionalResources: (partial.additionalResources ?? []).map((entry) => ({
+      id: entry?.id ?? crypto.randomUUID(),
+      name: entry?.name ?? "",
+      maxMode: entry?.maxMode ?? "fixed",
+      maxFixed: entry?.maxFixed ?? "",
+      maxAbility: entry?.maxAbility ?? "",
+      recharge: entry?.recharge ?? "short",
+      rechargeOther: entry?.rechargeOther ?? "",
+      used: entry?.used ?? "0",
+    })),
   });
 
   useEffect(() => {
@@ -773,6 +788,41 @@ export default function Home() {
     }));
   };
 
+  const addResource = () => {
+    const newResource: ResourceEntry = {
+      id: crypto.randomUUID(),
+      name: "",
+      maxMode: "fixed",
+      maxFixed: "",
+      maxAbility: "",
+      recharge: "short",
+      rechargeOther: "",
+      used: "0",
+    };
+    setSheetData((prev) => ({
+      ...prev,
+      additionalResources: [...prev.additionalResources, newResource],
+    }));
+  };
+
+  const updateResource = (id: string, patch: Partial<ResourceEntry>) => {
+    setSheetData((prev) => ({
+      ...prev,
+      additionalResources: prev.additionalResources.map((entry) =>
+        entry.id === id ? { ...entry, ...patch } : entry,
+      ),
+    }));
+  };
+
+  const removeResource = (id: string) => {
+    setSheetData((prev) => ({
+      ...prev,
+      additionalResources: prev.additionalResources.filter(
+        (entry) => entry.id !== id,
+      ),
+    }));
+  };
+
   const addModularItem = (side: ModularFieldKey) => {
     setSheetData((prev) => ({
       ...prev,
@@ -861,6 +911,11 @@ export default function Home() {
           : levelValue >= 5
             ? 3
             : 2;
+  const resourceAbilities = abilityKeys.map((key) => ({
+    key,
+    label: abilityLabels[key],
+    mod: getAbilityMod(key),
+  }));
   const jackOfAllTradesBonus = sheetData.jackOfAllTrades
     ? Math.floor(proficiencyBonus / 2)
     : 0;
@@ -1607,6 +1662,17 @@ export default function Home() {
                 </button>
               </div>
             </div>
+          </div>
+
+          <div className="mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
+            <AdditionalResources
+              resources={sheetData.additionalResources}
+              abilities={resourceAbilities}
+              proficiencyBonus={proficiencyBonus}
+              onAdd={addResource}
+              onUpdate={updateResource}
+              onRemove={removeResource}
+            />
           </div>
 
           <div className="mt-3 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2">
@@ -2906,6 +2972,17 @@ export default function Home() {
                   </button>
                 </div>
               </div>
+            </div>
+
+            <div className="mt-3 hidden rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 lg:block">
+              <AdditionalResources
+                resources={sheetData.additionalResources}
+                abilities={resourceAbilities}
+                proficiencyBonus={proficiencyBonus}
+                onAdd={addResource}
+                onUpdate={updateResource}
+                onRemove={removeResource}
+              />
             </div>
 
             <div className={`mt-4 rounded-xl border border-purple-900/60 bg-[#1f1635] p-2 ${activeTab === "features" ? "block" : "hidden lg:block"}`}>
