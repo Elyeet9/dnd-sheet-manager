@@ -4,6 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { Cinzel_Decorative } from "next/font/google";
 import Swal from "sweetalert2";
 import SortableSpellList from "./SortableSpellList";
+import SpellSlotTracker from "./SpellSlotTracker";
+import SpellSlotHelper, {
+  slotsForCaster,
+  type CasterType,
+} from "./SpellSlotHelper";
 
 type SheetData = {
   characterName: string;
@@ -85,6 +90,15 @@ type SheetData = {
   spellSlotsLevel7Expended: string;
   spellSlotsLevel8Expended: string;
   spellSlotsLevel9Expended: string;
+  spellSlotsLevel1Max: string;
+  spellSlotsLevel2Max: string;
+  spellSlotsLevel3Max: string;
+  spellSlotsLevel4Max: string;
+  spellSlotsLevel5Max: string;
+  spellSlotsLevel6Max: string;
+  spellSlotsLevel7Max: string;
+  spellSlotsLevel8Max: string;
+  spellSlotsLevel9Max: string;
 };
 
 type SkillKey =
@@ -286,6 +300,15 @@ const defaultSheetData: SheetData = {
   spellSlotsLevel7Expended: "",
   spellSlotsLevel8Expended: "",
   spellSlotsLevel9Expended: "",
+  spellSlotsLevel1Max: "0",
+  spellSlotsLevel2Max: "0",
+  spellSlotsLevel3Max: "0",
+  spellSlotsLevel4Max: "0",
+  spellSlotsLevel5Max: "0",
+  spellSlotsLevel6Max: "0",
+  spellSlotsLevel7Max: "0",
+  spellSlotsLevel8Max: "0",
+  spellSlotsLevel9Max: "0",
 };
 
 const storageKey = "dnd-sheet-2024-v1";
@@ -400,6 +423,15 @@ export default function Home() {
     spellSlotsLevel7Expended: partial.spellSlotsLevel7Expended ?? "",
     spellSlotsLevel8Expended: partial.spellSlotsLevel8Expended ?? "",
     spellSlotsLevel9Expended: partial.spellSlotsLevel9Expended ?? "",
+    spellSlotsLevel1Max: partial.spellSlotsLevel1Max ?? "0",
+    spellSlotsLevel2Max: partial.spellSlotsLevel2Max ?? "0",
+    spellSlotsLevel3Max: partial.spellSlotsLevel3Max ?? "0",
+    spellSlotsLevel4Max: partial.spellSlotsLevel4Max ?? "0",
+    spellSlotsLevel5Max: partial.spellSlotsLevel5Max ?? "0",
+    spellSlotsLevel6Max: partial.spellSlotsLevel6Max ?? "0",
+    spellSlotsLevel7Max: partial.spellSlotsLevel7Max ?? "0",
+    spellSlotsLevel8Max: partial.spellSlotsLevel8Max ?? "0",
+    spellSlotsLevel9Max: partial.spellSlotsLevel9Max ?? "0",
   });
 
   useEffect(() => {
@@ -794,19 +826,31 @@ export default function Home() {
     ["spellsLevel6", "spellsLevel7", "spellsLevel8", "spellsLevel9"],
   ];
 
-  const spellSlotDiamondsByLevel: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, number> = {
-    1: 4,
-    2: 3,
-    3: 3,
-    4: 3,
-    5: 3,
-    6: 2,
-    7: 2,
-    8: 1,
-    9: 1,
+  const levelValue = Math.max(1, toNumber(sheetData.level));
+
+  const allSpellSlotsEmpty = [1, 2, 3, 4, 5, 6, 7, 8, 9].every((lvl) => {
+    const raw = sheetData[`spellSlotsLevel${lvl}Max` as keyof SheetData];
+    return (Number.parseInt(String(raw ?? "0"), 10) || 0) === 0;
+  });
+
+  const applyCasterSlots = (type: CasterType, casterLevel: number) => {
+    const slots = slotsForCaster(type, casterLevel);
+    setSheetData((prev) => {
+      const updates: Record<string, string> = {};
+      for (let lvl = 1; lvl <= 9; lvl++) {
+        const max = slots[lvl - 1];
+        const expKey = `spellSlotsLevel${lvl}Expended` as keyof SheetData;
+        const curExp =
+          Number.parseInt(String(prev[expKey] ?? "0"), 10) || 0;
+        updates[`spellSlotsLevel${lvl}Max`] = String(max);
+        updates[`spellSlotsLevel${lvl}Expended`] = String(
+          Math.min(curExp, max),
+        );
+      }
+      return { ...prev, ...updates };
+    });
   };
 
-  const levelValue = Math.max(1, toNumber(sheetData.level));
   const proficiencyBonus =
     levelValue >= 17
       ? 6
@@ -1688,14 +1732,28 @@ export default function Home() {
                 Cantrips & Prepared Spells (By Level)
               </div>
             </div>
+            {allSpellSlotsEmpty && (
+              <SpellSlotHelper defaultLevel={levelValue} onApply={applyCasterSlots} />
+            )}
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
               {spellLevelSections.map((section) => {
-                const maxSlots = section.slotLevel
-                  ? spellSlotDiamondsByLevel[section.slotLevel]
-                  : 0;
-                const expendedKey = section.slotLevel
-                  ? (`spellSlotsLevel${section.slotLevel}Expended` as keyof SheetData)
+                const slotLevel = section.slotLevel;
+                const maxKey = slotLevel
+                  ? (`spellSlotsLevel${slotLevel}Max` as keyof SheetData)
                   : null;
+                const expendedKey = slotLevel
+                  ? (`spellSlotsLevel${slotLevel}Expended` as keyof SheetData)
+                  : null;
+                const maxSlots = maxKey
+                  ? Math.max(
+                      0,
+                      Math.min(
+                        9,
+                        Number.parseInt(String(sheetData[maxKey] ?? "0"), 10) ||
+                          0,
+                      ),
+                    )
+                  : 0;
                 const currentExpended = expendedKey
                   ? Math.max(
                       0,
@@ -1715,33 +1773,42 @@ export default function Home() {
                     className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
                   >
                     <div className="rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5">
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
                         <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200">
                           {section.label}
                         </span>
-                        {section.slotLevel ? (
-                          <div className="flex items-center gap-1.5">
-                            {Array.from({ length: maxSlots }).map((_, index) => (
-                              <button
-                                key={`mobile-${section.key}-slot-${index}`}
-                                type="button"
-                                onClick={() => {
-                                  const nextExpended =
-                                    index < currentExpended ? index : index + 1;
-                                  setSheetData((prev) => ({
-                                    ...prev,
-                                    [`spellSlotsLevel${section.slotLevel}Expended`]: String(nextExpended),
-                                  }));
-                                }}
-                                className={`h-3.5 w-3.5 rotate-45 border transition-all ${
-                                  index < currentExpended
-                                    ? "border-none bg-purple-400 [box-shadow:0_0_6px_rgba(168,85,247,0.45)]"
-                                    : "border-purple-500/40 bg-transparent"
-                                }`}
-                                aria-label={`${section.label} spell slot ${index + 1}`}
-                              />
-                            ))}
-                          </div>
+                        {slotLevel ? (
+                          <SpellSlotTracker
+                            max={maxSlots}
+                            expended={currentExpended}
+                            label={section.label}
+                            onChangeMax={(nextMax) =>
+                              setSheetData((prev) => {
+                                const clampedMax = Math.max(
+                                  0,
+                                  Math.min(9, nextMax),
+                                );
+                                const curExp =
+                                  Number.parseInt(
+                                    String(prev[expendedKey!] ?? "0"),
+                                    10,
+                                  ) || 0;
+                                return {
+                                  ...prev,
+                                  [maxKey!]: String(clampedMax),
+                                  [expendedKey!]: String(
+                                    Math.min(curExp, clampedMax),
+                                  ),
+                                };
+                              })
+                            }
+                            onChangeExpended={(nextExpended) =>
+                              setSheetData((prev) => ({
+                                ...prev,
+                                [expendedKey!]: String(nextExpended),
+                              }))
+                            }
+                          />
                         ) : null}
                       </div>
                     </div>
@@ -3168,6 +3235,9 @@ export default function Home() {
                     Cantrips & Prepared Spells (By Level)
                   </div>
                 </div>
+                {allSpellSlotsEmpty && (
+                  <SpellSlotHelper defaultLevel={levelValue} onApply={applyCasterSlots} />
+                )}
                 <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-3">
                   {spellLevelColumns.map((column, columnIndex) => (
                     <div key={`spell-column-${columnIndex}`} className="space-y-3">
@@ -3175,12 +3245,25 @@ export default function Home() {
                         const section = spellLevelSections.find((entry) => entry.key === sectionKey);
                         if (!section) return null;
 
-                        const maxSlots = section.slotLevel
-                          ? spellSlotDiamondsByLevel[section.slotLevel]
-                          : 0;
-                        const expendedKey = section.slotLevel
-                          ? (`spellSlotsLevel${section.slotLevel}Expended` as keyof SheetData)
+                        const slotLevel = section.slotLevel;
+                        const maxKey = slotLevel
+                          ? (`spellSlotsLevel${slotLevel}Max` as keyof SheetData)
                           : null;
+                        const expendedKey = slotLevel
+                          ? (`spellSlotsLevel${slotLevel}Expended` as keyof SheetData)
+                          : null;
+                        const maxSlots = maxKey
+                          ? Math.max(
+                              0,
+                              Math.min(
+                                9,
+                                Number.parseInt(
+                                  String(sheetData[maxKey] ?? "0"),
+                                  10,
+                                ) || 0,
+                              ),
+                            )
+                          : 0;
                         const currentExpended = expendedKey
                           ? Math.max(
                               0,
@@ -3200,33 +3283,42 @@ export default function Home() {
                             className="rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
                           >
                             <div className="rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5">
-                              <div className="flex items-center justify-between">
+                              <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
                                 <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200">
                                   {section.label}
                                 </span>
-                                {section.slotLevel ? (
-                                  <div className="flex items-center gap-1.5">
-                                    {Array.from({ length: maxSlots }).map((_, index) => (
-                                      <button
-                                        key={`${section.key}-slot-${index}`}
-                                        type="button"
-                                        onClick={() => {
-                                          const nextExpended =
-                                            index < currentExpended ? index : index + 1;
-                                          setSheetData((prev) => ({
-                                            ...prev,
-                                            [`spellSlotsLevel${section.slotLevel}Expended`]: String(nextExpended),
-                                          }));
-                                        }}
-                                        className={`h-3.5 w-3.5 rotate-45 border transition-all ${
-                                          index < currentExpended
-                                            ? "border-none bg-purple-400 [box-shadow:0_0_6px_rgba(168,85,247,0.45)]"
-                                            : "border-purple-500/40 bg-transparent"
-                                        }`}
-                                        aria-label={`${section.label} spell slot ${index + 1}`}
-                                      />
-                                    ))}
-                                  </div>
+                                {slotLevel ? (
+                                  <SpellSlotTracker
+                                    max={maxSlots}
+                                    expended={currentExpended}
+                                    label={section.label}
+                                    onChangeMax={(nextMax) =>
+                                      setSheetData((prev) => {
+                                        const clampedMax = Math.max(
+                                          0,
+                                          Math.min(9, nextMax),
+                                        );
+                                        const curExp =
+                                          Number.parseInt(
+                                            String(prev[expendedKey!] ?? "0"),
+                                            10,
+                                          ) || 0;
+                                        return {
+                                          ...prev,
+                                          [maxKey!]: String(clampedMax),
+                                          [expendedKey!]: String(
+                                            Math.min(curExp, clampedMax),
+                                          ),
+                                        };
+                                      })
+                                    }
+                                    onChangeExpended={(nextExpended) =>
+                                      setSheetData((prev) => ({
+                                        ...prev,
+                                        [expendedKey!]: String(nextExpended),
+                                      }))
+                                    }
+                                  />
                                 ) : null}
                               </div>
                             </div>
