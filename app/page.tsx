@@ -650,6 +650,101 @@ export default function Home() {
     }
   };
 
+  const handleShortRest = async () => {
+    const result = await Swal.fire({
+      html: `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+          <div style="text-align:left;font-size:0.9rem;line-height:1.5;">
+            <p style="margin:0 0 6px;">A breather of about an hour. This will:</p>
+            <ul style="margin:0;padding-left:1.1rem;">
+              <li>Restore resources that recharge on a <b style="color:#c4b5fd">Short Rest</b></li>
+            </ul>
+            <p style="margin:8px 0 0;font-size:0.78rem;color:#a5a1b8;">You may also spend Hit Dice to heal &mdash; adjust those manually.</p>
+          </div>
+        </div>`,
+      title: "Take a Short Rest?",
+      showCancelButton: true,
+      confirmButtonText: "Rest",
+      cancelButtonText: "Cancel",
+      background: "#140d24",
+      color: "#e2e8f0",
+      confirmButtonColor: "#a855f7",
+      cancelButtonColor: "#334155",
+    });
+
+    if (!result.isConfirmed) return;
+
+    setSheetData((prev) => ({
+      ...prev,
+      additionalResources: prev.additionalResources.map((entry) =>
+        entry.recharge === "short" ? { ...entry, used: "0" } : entry,
+      ),
+    }));
+  };
+
+  const handleLongRest = async () => {
+    const result = await Swal.fire({
+      html: `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          <div style="text-align:left;font-size:0.9rem;line-height:1.5;">
+            <p style="margin:0 0 6px;">A full night's rest. This will:</p>
+            <ul style="margin:0;padding-left:1.1rem;">
+              <li>Restore <b style="color:#c4b5fd">current HP</b> to your maximum</li>
+              <li>Recover all expended <b style="color:#c4b5fd">spell slots</b></li>
+              <li>Regain spent <b style="color:#c4b5fd">Hit Dice</b> (up to half your total)</li>
+              <li>Restore resources that recharge on a <b style="color:#c4b5fd">Short or Long Rest</b></li>
+              <li>Reset your <b style="color:#c4b5fd">death saves</b> and clear temporary HP</li>
+            </ul>
+          </div>
+        </div>`,
+      title: "Take a Long Rest?",
+      showCancelButton: true,
+      confirmButtonText: "Rest",
+      cancelButtonText: "Cancel",
+      background: "#140d24",
+      color: "#e2e8f0",
+      confirmButtonColor: "#a855f7",
+      cancelButtonColor: "#334155",
+    });
+
+    if (!result.isConfirmed) return;
+
+    setSheetData((prev) => {
+      const updates: Record<string, string> = {};
+      // Recover all expended spell slots.
+      for (let lvl = 1; lvl <= 9; lvl++) {
+        updates[`spellSlotsLevel${lvl}Expended`] = "0";
+      }
+      // Heal to full and clear temporary HP.
+      updates.hpCurrent = prev.hpMax;
+      updates.hpTemp = "";
+      // Regain spent Hit Dice, up to half the total (minimum 1).
+      const totalHitDice = Math.max(0, toNumber(prev.hitDiceMax));
+      const spentHitDice = Math.max(0, toNumber(prev.hitDiceSpent));
+      const recovered = Math.min(
+        spentHitDice,
+        Math.max(1, Math.floor(totalHitDice / 2)),
+      );
+      updates.hitDiceSpent = String(spentHitDice - recovered);
+
+      return {
+        ...prev,
+        ...updates,
+        // Regaining HP resets death saves.
+        deathSuccesses: 0,
+        deathFailures: 0,
+        // Long rests recover both short- and long-rest resources.
+        additionalResources: prev.additionalResources.map((entry) =>
+          entry.recharge === "short" || entry.recharge === "long"
+            ? { ...entry, used: "0" }
+            : entry,
+        ),
+      };
+    });
+  };
+
   const handleChange = (field: keyof SheetData) =>
     (
       event: React.ChangeEvent<
@@ -1167,7 +1262,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="hidden lg:flex lg:items-center lg:justify-center">
+        <div className="relative hidden lg:flex lg:items-center lg:justify-center">
           <div className="inline-flex overflow-hidden rounded-lg border border-purple-900/60 bg-[#1f1635] p-1">
             <button
               type="button"
@@ -1190,6 +1285,26 @@ export default function Home() {
               }`}
             >
               II
+            </button>
+          </div>
+          <div className="absolute right-0 top-1/2 flex -translate-y-1/2 items-center gap-2">
+            <button
+              type="button"
+              onClick={handleShortRest}
+              className="flex items-center gap-1.5 rounded-md border border-amber-500/50 bg-[#1f1635] px-3 py-1.5 text-xs font-semibold text-amber-200 transition hover:border-amber-400 hover:text-amber-100"
+              title="Restore short-rest resources"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+              Short Rest
+            </button>
+            <button
+              type="button"
+              onClick={handleLongRest}
+              className="flex items-center gap-1.5 rounded-md border border-indigo-400/50 bg-[#1f1635] px-3 py-1.5 text-xs font-semibold text-indigo-200 transition hover:border-indigo-300 hover:text-indigo-100"
+              title="Full recovery"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+              Long Rest
             </button>
           </div>
         </div>
@@ -3745,6 +3860,30 @@ export default function Home() {
                   );
                 })}
               </div>
+            </div>
+            <div className="mx-auto mt-8 flex w-full max-w-[16rem] flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsTabMenuOpen(false);
+                  handleShortRest();
+                }}
+                className="flex items-center justify-center gap-2 rounded-lg border border-amber-500/50 bg-linear-to-b from-[#1f1635] to-[#160f29] px-3 py-2.5 text-sm font-semibold text-amber-200 transition hover:border-amber-400 hover:text-amber-100"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                Short Rest
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsTabMenuOpen(false);
+                  handleLongRest();
+                }}
+                className="flex items-center justify-center gap-2 rounded-lg border border-indigo-400/50 bg-linear-to-b from-[#1f1635] to-[#160f29] px-3 py-2.5 text-sm font-semibold text-indigo-200 transition hover:border-indigo-300 hover:text-indigo-100"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                Long Rest
+              </button>
             </div>
           </div>
         </div>
