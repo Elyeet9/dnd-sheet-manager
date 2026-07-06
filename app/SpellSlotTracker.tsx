@@ -85,6 +85,7 @@ export default function SpellSlotTracker({
         </button>
         <button
           type="button"
+          suppressHydrationWarning
           onClick={() => onChangeMax(clampedMax + 1)}
           disabled={clampedMax >= MAX_SLOTS_CAP}
           className="flex h-4 w-4 items-center justify-center rounded border border-purple-900/60 bg-[#0f0a1c] text-[11px] leading-none font-semibold text-emerald-300 transition hover:border-purple-400 disabled:cursor-not-allowed disabled:opacity-40"

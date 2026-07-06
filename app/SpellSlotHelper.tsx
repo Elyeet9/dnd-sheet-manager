@@ -148,6 +148,7 @@ export default function SpellSlotHelper({
         <div className="flex items-center gap-1.5">
           <button
             type="button"
+            suppressHydrationWarning
             onClick={() => stepLevel(-1)}
             disabled={parsedLevel <= 1}
             className="flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-purple-400 disabled:cursor-not-allowed disabled:opacity-40"
@@ -167,6 +168,7 @@ export default function SpellSlotHelper({
           />
           <button
             type="button"
+            suppressHydrationWarning
             onClick={() => stepLevel(1)}
             disabled={parsedLevel >= 20}
             className="flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-emerald-300 transition hover:border-purple-400 disabled:cursor-not-allowed disabled:opacity-40"
