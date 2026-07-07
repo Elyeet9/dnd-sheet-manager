@@ -172,9 +172,12 @@ export default function LoadingScreen({
       <h1
         className={`mt-9 text-center text-2xl font-semibold tracking-[0.14em] text-purple-100 sm:text-3xl ${fontClassName}`}
       >
-        DnD 2024 Sheet
+        Dungeon Sheets
       </h1>
-      <div className="mt-2 h-px w-40 bg-linear-to-r from-transparent via-purple-400/70 to-transparent" />
+      <p className="mt-2 text-center text-xs tracking-[0.12em] text-purple-200/70">
+        A D&D 2024 modular character sheet
+      </p>
+      <div className="mt-3 h-px w-40 bg-linear-to-r from-transparent via-purple-400/70 to-transparent" />
 
       {/* Status line (crossfades between phases) */}
       <div className="mt-4 flex h-6 items-center justify-center px-6">

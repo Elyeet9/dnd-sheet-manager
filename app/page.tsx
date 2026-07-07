@@ -1287,10 +1287,10 @@ export default function Home() {
             <h1
               className={`text-3xl font-semibold text-slate-50 ${titleFont.className}`}
             >
-              DnD 2024 Sheet
+              Dungeon Sheets
             </h1>
             <p className="text-sm text-slate-300">
-              Begin with core info and expand as modules are added.
+              A D&D 2024 modular character sheet.
             </p>
           </div>
           <div className="flex flex-col items-start gap-2 sm:items-end">

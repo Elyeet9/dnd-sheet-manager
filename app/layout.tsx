@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DnD 2024 Character Sheet",
+  title: "Dungeon Sheets",
   description:
-    "A sleek DnD 2024 character sheet with modular sections, autosave, and JSON import/export.",
+    "A D&D 2024 modular character sheet with autosave and JSON import/export.",
 };
 
 export default function RootLayout({
