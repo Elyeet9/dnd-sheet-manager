@@ -30,7 +30,7 @@ export default function LoadingScreen({
 }) {
   return (
     <motion.div
-      className="fixed inset-0 z-[120] flex flex-col items-center justify-center overflow-hidden bg-[#140d24]"
+      className="fixed inset-0 z-120 flex flex-col items-center justify-center overflow-hidden bg-[#140d24]"
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -153,7 +153,7 @@ export default function LoadingScreen({
 
         {/* central pulsing gem */}
         <motion.div
-          className="relative h-12 w-12 rotate-45 rounded-[6px] border border-purple-200/70 bg-linear-to-br from-purple-300 via-purple-500 to-indigo-700"
+          className="relative h-12 w-12 rotate-45 rounded-md border border-purple-200/70 bg-linear-to-br from-purple-300 via-purple-500 to-indigo-700"
           animate={{
             scale: [1, 1.12, 1],
             boxShadow: [
@@ -164,7 +164,7 @@ export default function LoadingScreen({
           }}
           transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
         >
-          <span className="absolute inset-1 rounded-[4px] bg-linear-to-tl from-white/50 to-transparent" />
+          <span className="absolute inset-1 rounded-sm bg-linear-to-tl from-white/50 to-transparent" />
         </motion.div>
       </div>
 
