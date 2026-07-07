@@ -37,14 +37,17 @@ export default function SpellSlotTracker({
       {clampedMax > 0 && (
         <div className="flex flex-wrap items-center gap-1.5">
           {Array.from({ length: clampedMax }).map((_, index) => {
-            const filled = index < clampedExpended;
+            // A lit diamond is an available (unspent) slot; spending darkens it
+            // from the right. Long rest sets expended to 0 → every slot lit.
+            const available = clampedMax - clampedExpended;
+            const filled = index < available;
             return (
               <motion.button
                 key={index}
                 type="button"
                 onClick={() =>
                   onChangeExpended(
-                    index < clampedExpended ? index : index + 1,
+                    clampedMax - (index < available ? index : index + 1),
                   )
                 }
                 initial={mounted ? { scale: 0, opacity: 0 } : false}
@@ -63,9 +66,9 @@ export default function SpellSlotTracker({
                     : "border-purple-500/40"
                 }`}
                 aria-label={`${label} spell slot ${index + 1}${
-                  filled ? " (expended)" : ""
+                  filled ? " (available)" : " (expended)"
                 }`}
-                aria-pressed={filled}
+                aria-pressed={!filled}
               />
             );
           })}
