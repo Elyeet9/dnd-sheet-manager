@@ -191,7 +191,7 @@ function ResourceCard({
                   }
                   className={`h-3.5 w-3.5 rounded-sm border transition-colors ${
                     checked
-                      ? "border-transparent bg-purple-400 [box-shadow:0_0_6px_rgba(168,85,247,0.5)]"
+                      ? "border-transparent bg-purple-400 [box-shadow:0_0_6px_color-mix(in_oklab,var(--color-purple-500)_50%,transparent)]"
                       : "border-purple-500/40 bg-transparent hover:border-purple-300"
                   }`}
                   aria-label={`Use ${index + 1}${

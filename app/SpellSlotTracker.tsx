@@ -54,16 +54,13 @@ export default function SpellSlotTracker({
                 animate={{
                   scale: filled ? 1.12 : 1,
                   opacity: 1,
-                  backgroundColor: filled
-                    ? "rgb(192,132,252)"
-                    : "rgba(192,132,252,0)",
                 }}
                 whileTap={{ scale: 0.78 }}
                 transition={diamondTransition}
-                className={`h-3.5 w-3.5 rotate-45 border ${
+                className={`h-3.5 w-3.5 rotate-45 border transition-colors ${
                   filled
-                    ? "border-transparent [box-shadow:0_0_6px_rgba(168,85,247,0.55)]"
-                    : "border-purple-500/40"
+                    ? "border-transparent bg-purple-400 [box-shadow:0_0_6px_color-mix(in_oklab,var(--color-purple-500)_55%,transparent)]"
+                    : "border-purple-500/40 bg-transparent"
                 }`}
                 aria-label={`${label} spell slot ${index + 1}${
                   filled ? " (available)" : " (expended)"

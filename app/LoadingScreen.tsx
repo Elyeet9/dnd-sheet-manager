@@ -30,7 +30,7 @@ export default function LoadingScreen({
 }) {
   return (
     <motion.div
-      className="fixed inset-0 z-120 flex flex-col items-center justify-center overflow-hidden bg-[#140d24]"
+      className="palette-fade fixed inset-0 z-120 flex flex-col items-center justify-center overflow-hidden bg-sheet-1"
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -38,9 +38,10 @@ export default function LoadingScreen({
       aria-live="polite"
       aria-busy="true"
     >
-      {/* Arcane vignette */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(126,34,206,0.28),transparent_62%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(30,64,175,0.18),transparent_55%)]" />
+      {/* Arcane vignette — tinted from the active palette so the splash matches
+          the sheet it fades into (and doesn't flash a stale hue on load). */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--color-purple-700)_30%,transparent),transparent_62%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom,color-mix(in_oklab,var(--color-indigo-700)_22%,transparent),transparent_55%)]" />
 
       {/* Drifting embers */}
       <div className="pointer-events-none absolute inset-0">
@@ -91,7 +92,10 @@ export default function LoadingScreen({
             cy="100"
             r="92"
             fill="none"
-            stroke="rgba(168,85,247,0.35)"
+            style={{
+              stroke:
+                "color-mix(in oklab, var(--color-purple-500) 35%, transparent)",
+            }}
             strokeWidth="1.5"
             strokeDasharray="2 10"
           />
@@ -100,7 +104,10 @@ export default function LoadingScreen({
             cy="100"
             r="84"
             fill="none"
-            stroke="rgba(216,180,254,0.55)"
+            style={{
+              stroke:
+                "color-mix(in oklab, var(--color-purple-300) 55%, transparent)",
+            }}
             strokeWidth="2"
             strokeDasharray="26 18"
             strokeLinecap="round"
@@ -119,7 +126,10 @@ export default function LoadingScreen({
             cy="100"
             r="78"
             fill="none"
-            stroke="rgba(129,140,248,0.45)"
+            style={{
+              stroke:
+                "color-mix(in oklab, var(--color-indigo-400) 45%, transparent)",
+            }}
             strokeWidth="1.5"
             strokeDasharray="4 14"
             strokeLinecap="round"
@@ -151,17 +161,13 @@ export default function LoadingScreen({
           ))}
         </motion.div>
 
-        {/* central pulsing gem */}
+        {/* central pulsing gem. The glow pulse lives in a CSS keyframe
+            (gem-pulse) rather than motion's boxShadow, so it can use the
+            palette's color variables — motion can't interpolate var()/color-mix
+            inside a shadow. Motion still drives the scale pulse. */}
         <motion.div
-          className="relative h-12 w-12 rotate-45 rounded-md border border-purple-200/70 bg-linear-to-br from-purple-300 via-purple-500 to-indigo-700"
-          animate={{
-            scale: [1, 1.12, 1],
-            boxShadow: [
-              "0 0 12px rgba(168,85,247,0.5)",
-              "0 0 26px rgba(192,132,252,0.85)",
-              "0 0 12px rgba(168,85,247,0.5)",
-            ],
-          }}
+          className="gem-pulse relative h-12 w-12 rotate-45 rounded-md border border-purple-200/70 bg-linear-to-br from-purple-300 via-purple-500 to-indigo-700"
+          animate={{ scale: [1, 1.12, 1] }}
           transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
         >
           <span className="absolute inset-1 rounded-sm bg-linear-to-tl from-white/50 to-transparent" />

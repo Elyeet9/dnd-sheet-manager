@@ -28,6 +28,22 @@
   --color-sheet-7: #0a0612;
 }
 
+/* Typed registrations for the palette variables the loading screen animates.
+   Custom properties only interpolate in a transition when declared as a typed
+   <color> via @property; without this they would snap. Initial values are the
+   Amethyst Night defaults — the live values still come from :root / the palette
+   scopes below, so these only matter as a fallback. */
+@property --color-sheet-1 { syntax: "<color>"; inherits: true; initial-value: #140d24; }
+@property --color-purple-100 { syntax: "<color>"; inherits: true; initial-value: #f3e8ff; }
+@property --color-purple-200 { syntax: "<color>"; inherits: true; initial-value: #e9d5ff; }
+@property --color-purple-300 { syntax: "<color>"; inherits: true; initial-value: #d8b4fe; }
+@property --color-purple-400 { syntax: "<color>"; inherits: true; initial-value: #c084fc; }
+@property --color-purple-500 { syntax: "<color>"; inherits: true; initial-value: #a855f7; }
+@property --color-purple-700 { syntax: "<color>"; inherits: true; initial-value: #7e22ce; }
+@property --color-purple-950 { syntax: "<color>"; inherits: true; initial-value: #3b0764; }
+@property --color-indigo-400 { syntax: "<color>"; inherits: true; initial-value: #818cf8; }
+@property --color-indigo-700 { syntax: "<color>"; inherits: true; initial-value: #4338ca; }
+
 /* ---------------------------------------------------------------------------
    Color palettes. Selecting a palette stamps `data-palette` on the sheet root;
    because Tailwind v4 utilities resolve colors through `var(--color-*)`, simply
@@ -56,6 +72,7 @@
   --color-purple-700: #15803d;
   --color-purple-800: #166534;
   --color-purple-900: #14532d;
+  --color-purple-950: #052e16;
 
   --color-indigo-100: #ccfbf1;
   --color-indigo-200: #99f6e4;
@@ -84,6 +101,7 @@
   --color-purple-700: #6b4a20;
   --color-purple-800: #5c3f1c;
   --color-purple-900: #8a7038;
+  --color-purple-950: #4a3418;
 
   --color-slate-50: #2b1d0b;
   --color-slate-100: #3a2915;
@@ -95,11 +113,16 @@
   --color-indigo-200: #3a4763;
   --color-indigo-300: #4a5878;
   --color-indigo-400: #5a6a8f;
+  --color-indigo-700: #3a4763;
 
   --color-amber-100: #6b430e;
   --color-amber-200: #7a4e12;
   --color-amber-400: #b5822f;
   --color-amber-500: #9c6f28;
+
+  /* Positive / negative accents darkened so they keep contrast on light paper. */
+  --color-emerald-300: #1f7a44;
+  --color-red-300: #b23325;
 }
 
 /* Dragon Executive — monochromatic graphite and brushed steel. */
@@ -122,6 +145,7 @@
   --color-purple-700: #5b5b64;
   --color-purple-800: #44444b;
   --color-purple-900: #3a3a40;
+  --color-purple-950: #2a2a2e;
 
   --color-indigo-100: #e6e6e9;
   --color-indigo-200: #d3d3d8;
@@ -174,4 +198,40 @@ body {
 .flag-hang {
   transform-origin: top center;
   animation: flag-hang 750ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Loading-screen gem glow. Kept in CSS (not motion's boxShadow) so it can pull
+   the palette's color variables and retint with the active theme. */
+@keyframes gem-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 12px
+      color-mix(in oklab, var(--color-purple-500) 50%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 26px
+      color-mix(in oklab, var(--color-purple-400) 85%, transparent);
+  }
+}
+
+.gem-pulse {
+  animation: gem-pulse 2.4s ease-in-out infinite;
+}
+
+/* Cross-fade the loading splash between palettes instead of snapping. The
+   transition sits on the splash root so only its subtree eases (the live sheet
+   behind it, and settings-menu palette changes, are unaffected); descendants
+   inherit the interpolating variables and retint smoothly. */
+.palette-fade {
+  transition:
+    --color-sheet-1 0.6s ease,
+    --color-purple-100 0.6s ease,
+    --color-purple-200 0.6s ease,
+    --color-purple-300 0.6s ease,
+    --color-purple-400 0.6s ease,
+    --color-purple-500 0.6s ease,
+    --color-purple-700 0.6s ease,
+    --color-purple-950 0.6s ease,
+    --color-indigo-400 0.6s ease,
+    --color-indigo-700 0.6s ease;
 }

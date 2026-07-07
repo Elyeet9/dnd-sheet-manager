@@ -1701,7 +1701,7 @@ export default function Home() {
                         <div
                           key={`success-${i}`}
                           className={`h-4 w-4 rotate-45 border-2 border-purple-500/40 transition-all ${
-                            i < sheetData.deathSuccesses ? "bg-purple-400 border-none [box-shadow:0_0_8px_rgba(168,85,247,0.5)]" : "bg-transparent"
+                            i < sheetData.deathSuccesses ? "bg-purple-400 border-none [box-shadow:0_0_8px_color-mix(in_oklab,var(--color-purple-500)_50%,transparent)]" : "bg-transparent"
                           }`}
                           onClick={() => setSheetData(prev => ({ ...prev, deathSuccesses: i < prev.deathSuccesses ? i : i + 1 }))}
                         />
@@ -1715,7 +1715,7 @@ export default function Home() {
                         <div
                           key={`failure-${i}`}
                           className={`h-4 w-4 rotate-45 border-2 border-purple-500/40 transition-all ${
-                            i < sheetData.deathFailures ? "bg-purple-400 border-none [box-shadow:0_0_8px_rgba(168,85,247,0.5)]" : "bg-transparent"
+                            i < sheetData.deathFailures ? "bg-purple-400 border-none [box-shadow:0_0_8px_color-mix(in_oklab,var(--color-purple-500)_50%,transparent)]" : "bg-transparent"
                           }`}
                           onClick={() => setSheetData(prev => ({ ...prev, deathFailures: i < prev.deathFailures ? i : i + 1 }))}
                         />
@@ -2809,7 +2809,7 @@ export default function Home() {
                     }
                     className={`h-4 w-4 rotate-45 border-2 transition-all ${
                       sheetData.jackOfAllTrades
-                        ? "border-none bg-purple-400 [box-shadow:0_0_8px_rgba(168,85,247,0.5)]"
+                        ? "border-none bg-purple-400 [box-shadow:0_0_8px_color-mix(in_oklab,var(--color-purple-500)_50%,transparent)]"
                         : "border-purple-500/40 bg-transparent"
                     }`}
                     aria-label="Toggle Jack of All Trades"
@@ -3906,7 +3906,7 @@ export default function Home() {
                         isTabMenuOpen ? "flag-hang" : "opacity-0"
                       } ${
                         isActive
-                          ? "border-purple-400/80 bg-linear-to-b from-purple-600/55 to-purple-800/30 text-white shadow-[0_6px_20px_rgba(147,51,234,0.35)]"
+                          ? "border-purple-400/80 bg-linear-to-b from-purple-600/55 to-purple-800/30 text-white shadow-[0_6px_20px_color-mix(in_oklab,var(--color-purple-600)_35%,transparent)]"
                           : "border-purple-900/70 bg-linear-to-b from-sheet-2 to-sheet-5 text-purple-300 hover:from-sheet-3 hover:text-purple-100"
                       }`}
                       title={tab.label}
@@ -3923,7 +3923,7 @@ export default function Home() {
                         {tab.label}
                       </span>
                       {isActive && (
-                        <span className="mt-auto mb-3 h-1.5 w-1.5 rounded-full bg-purple-200 shadow-[0_0_8px_rgba(216,180,254,0.8)]" />
+                        <span className="mt-auto mb-3 h-1.5 w-1.5 rounded-full bg-purple-200 shadow-[0_0_8px_color-mix(in_oklab,var(--color-purple-300)_80%,transparent)]" />
                       )}
                     </button>
                   );
