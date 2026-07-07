@@ -2,7 +2,9 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Cinzel_Decorative } from "next/font/google";
+import { AnimatePresence } from "motion/react";
 import Swal from "sweetalert2";
+import LoadingScreen from "./LoadingScreen";
 import SortableSpellList from "./SortableSpellList";
 import SpellSlotTracker from "./SpellSlotTracker";
 import SpellSlotHelper, {
@@ -325,6 +327,8 @@ export default function Home() {
   >("info");
   const [desktopPageTab, setDesktopPageTab] = useState<"I" | "II">("I");
   const [hasHydrated, setHasHydrated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadStatus, setLoadStatus] = useState("Searching for an existing character…");
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [isTabMenuOpen, setIsTabMenuOpen] = useState(false);
   const loadInputRef = useRef<HTMLInputElement | null>(null);
@@ -453,17 +457,69 @@ export default function Home() {
     if (typeof window === "undefined") {
       return;
     }
-    const cached = window.localStorage.getItem(storageKey);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached) as Partial<SheetData>;
-        setSheetData(normalizeSheetData(parsed));
-      } catch {
-        setSheetData(defaultSheetData);
+
+    let cancelled = false;
+    const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    const run = async () => {
+      // Phase 1: look for a saved character.
+      setLoadStatus("Searching for an existing character…");
+      await wait(750);
+      if (cancelled) return;
+
+      const cached = window.localStorage.getItem(storageKey);
+      let foundCharacter = false;
+      let characterName = "";
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached) as Partial<SheetData>;
+          const normalized = normalizeSheetData(parsed);
+          setSheetData(normalized);
+          foundCharacter = true;
+          characterName = normalized.characterName.trim();
+        } catch {
+          setSheetData(defaultSheetData);
+        }
       }
-    }
-    setHasHydrated(true);
+      setHasHydrated(true);
+
+      // Phase 2: report what was found.
+      if (foundCharacter) {
+        setLoadStatus(
+          characterName
+            ? `Loading ${characterName}…`
+            : "Loading your character…",
+        );
+      } else {
+        setLoadStatus("No saved character found — preparing a fresh page…");
+      }
+      await wait(950);
+      if (cancelled) return;
+
+      // Let the page paint before revealing it.
+      setLoadStatus("Unfurling the sheet…");
+      await wait(400);
+      if (cancelled) return;
+
+      setIsLoading(false);
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  // Prevent background scroll while the loading screen is showing.
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+    document.body.style.overflow = isLoading ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isLoading]);
 
   useEffect(() => {
     if (!hasHydrated || typeof window === "undefined") {
@@ -1209,6 +1265,15 @@ export default function Home() {
         handleDropLoad(file);
       }}
     >
+      <AnimatePresence>
+        {isLoading && (
+          <LoadingScreen
+            key="loading-screen"
+            status={loadStatus}
+            fontClassName={titleFont.className}
+          />
+        )}
+      </AnimatePresence>
       {isDragActive && (
         <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-[#140d24]/80">
           <div className="rounded-xl border border-purple-400/80 bg-[#1f1635] px-6 py-4 text-center text-sm font-semibold uppercase tracking-[0.2em] text-purple-200">
