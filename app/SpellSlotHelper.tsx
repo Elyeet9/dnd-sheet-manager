@@ -135,7 +135,7 @@ export default function SpellSlotHelper({
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className="mt-3 rounded-lg border border-dashed border-purple-700/60 bg-[#140d24] px-3 py-3"
+      className="mt-3 rounded-lg border border-dashed border-purple-700/60 bg-sheet-1 px-3 py-3"
     >
       <p className="text-center text-[11px] leading-relaxed text-purple-200/90">
         No spell slots set. Set your caster level (sum of caster levels if
@@ -151,7 +151,7 @@ export default function SpellSlotHelper({
             suppressHydrationWarning
             onClick={() => stepLevel(-1)}
             disabled={parsedLevel <= 1}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-red-300 transition hover:border-purple-400 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-sheet-0 text-sm font-semibold text-red-300 transition hover:border-purple-400 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label="Decrease caster level"
           >
             −
@@ -163,7 +163,7 @@ export default function SpellSlotHelper({
             onChange={(event) =>
               setLevel(event.target.value.replace(/[^0-9]/g, ""))
             }
-            className="w-12 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1 text-center text-sm text-slate-100"
+            className="w-12 rounded-md border border-purple-900/60 bg-sheet-0 px-2 py-1 text-center text-sm text-slate-100"
             aria-label="Caster level"
           />
           <button
@@ -171,7 +171,7 @@ export default function SpellSlotHelper({
             suppressHydrationWarning
             onClick={() => stepLevel(1)}
             disabled={parsedLevel >= 20}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-sm font-semibold text-emerald-300 transition hover:border-purple-400 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-purple-900/60 bg-sheet-0 text-sm font-semibold text-emerald-300 transition hover:border-purple-400 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label="Increase caster level"
           >
             +
@@ -184,7 +184,7 @@ export default function SpellSlotHelper({
             key={option.type}
             type="button"
             onClick={() => onApply(option.type, parsedLevel)}
-            className="rounded-md border border-purple-500/60 bg-[#1f1635] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-purple-100 transition hover:border-purple-300 hover:bg-[#2d224d]"
+            className="rounded-md border border-purple-500/60 bg-sheet-2 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-purple-100 transition hover:border-purple-300 hover:bg-sheet-3"
           >
             {option.label}
           </button>

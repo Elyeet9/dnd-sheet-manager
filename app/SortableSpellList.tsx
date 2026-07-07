@@ -106,12 +106,12 @@ function SortableRow({
           rows={1}
           value={row.text}
           onChange={(event) => onTextChange(row.id, event.target.value)}
-          className="w-full resize-none rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-xs text-slate-100"
+          className="w-full resize-none rounded-md border border-purple-900/60 bg-sheet-0 px-2 py-1.5 text-xs text-slate-100"
         />
         <button
           type="button"
           onClick={() => onRemove(row.id)}
-          className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-xs font-semibold text-red-300 transition hover:border-red-300"
+          className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-purple-900/60 bg-sheet-0 text-xs font-semibold text-red-300 transition hover:border-red-300"
           aria-label={removeLabel}
         >
           −
@@ -216,7 +216,7 @@ export default function SortableSpellList({
       <button
         type="button"
         onClick={handleAdd}
-        className="flex w-full items-center justify-center gap-1 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200 transition hover:border-purple-400"
+        className="flex w-full items-center justify-center gap-1 rounded-md border border-purple-900/60 bg-sheet-0 px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-purple-200 transition hover:border-purple-400"
       >
         <span className="text-sm leading-none">+</span>
         {addLabel}

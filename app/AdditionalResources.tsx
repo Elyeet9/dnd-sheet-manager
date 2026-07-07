@@ -42,7 +42,7 @@ export function resolveResourceMax(
 }
 
 const fieldClass =
-  "rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1 text-xs text-slate-100";
+  "rounded-md border border-purple-900/60 bg-sheet-0 px-2 py-1 text-xs text-slate-100";
 
 function ResourceCard({
   entry,
@@ -68,7 +68,7 @@ function ResourceCard({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.94 }}
       transition={{ type: "spring", stiffness: 500, damping: 34 }}
-      className="flex flex-col gap-2 rounded-lg border border-purple-900/60 bg-[#140d24] p-2"
+      className="flex flex-col gap-2 rounded-lg border border-purple-900/60 bg-sheet-1 p-2"
     >
       <div className="flex items-center gap-2">
         <input
@@ -80,7 +80,7 @@ function ResourceCard({
         <button
           type="button"
           onClick={() => onRemove(entry.id)}
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-purple-900/60 bg-[#0f0a1c] text-xs font-semibold text-red-300 transition hover:border-red-300"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-purple-900/60 bg-sheet-0 text-xs font-semibold text-red-300 transition hover:border-red-300"
           aria-label={`Remove ${entry.name || "resource"}`}
         >
           −
@@ -214,7 +214,7 @@ function ResourceCard({
           type="button"
           onClick={() => onUpdate(entry.id, { used: "0" })}
           disabled={used === 0}
-          className="shrink-0 rounded-md border border-purple-900/60 bg-[#0f0a1c] px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-purple-200 transition hover:border-purple-400 disabled:cursor-not-allowed disabled:opacity-40"
+          className="shrink-0 rounded-md border border-purple-900/60 bg-sheet-0 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-purple-200 transition hover:border-purple-400 disabled:cursor-not-allowed disabled:opacity-40"
           title="Restore all uses"
         >
           Restore
@@ -241,14 +241,14 @@ export default function AdditionalResources({
 }) {
   return (
     <div>
-      <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-[#140d24] px-3 py-2">
+      <div className="flex items-center justify-center rounded-lg border border-purple-900/60 bg-sheet-1 px-3 py-2">
         <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-purple-200">
           Additional Resources
         </div>
       </div>
 
       {resources.length === 0 ? (
-        <p className="mt-3 rounded-lg border border-dashed border-purple-900/60 bg-[#140d24] px-3 py-4 text-center text-xs text-purple-200/70">
+        <p className="mt-3 rounded-lg border border-dashed border-purple-900/60 bg-sheet-1 px-3 py-4 text-center text-xs text-purple-200/70">
           Track any resource and other limited-use
           features here.
         </p>
@@ -270,7 +270,7 @@ export default function AdditionalResources({
       <button
         type="button"
         onClick={onAdd}
-        className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-purple-900/60 bg-[#140d24] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-200 transition hover:bg-[#1a1130]"
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-purple-900/60 bg-sheet-1 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-200 transition hover:bg-sheet-4"
       >
         <span className="text-sm">+</span>
         Add Resource

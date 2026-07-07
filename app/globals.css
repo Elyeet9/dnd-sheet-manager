@@ -13,6 +13,128 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Sheet surface tokens. These are the layered dark backgrounds of the sheet,
+   pulled out of hardcoded hex utilities so a color palette can retint them.
+   Non-inline so each value emits a `var(--color-sheet-N)` that palette scopes
+   below can override. Defaults reproduce the original "Amethyst Night" look. */
+@theme {
+  --color-sheet-0: #0f0a1c;
+  --color-sheet-1: #140d24;
+  --color-sheet-2: #1f1635;
+  --color-sheet-3: #2d224d;
+  --color-sheet-4: #1a1130;
+  --color-sheet-5: #160f29;
+  --color-sheet-6: #161029;
+  --color-sheet-7: #0a0612;
+}
+
+/* ---------------------------------------------------------------------------
+   Color palettes. Selecting a palette stamps `data-palette` on the sheet root;
+   because Tailwind v4 utilities resolve colors through `var(--color-*)`, simply
+   re-pointing those variables inside the scope recolors the whole subtree
+   (including /opacity variants, which use color-mix on the same var).
+   "Amethyst Night" is the default and needs no overrides.
+   --------------------------------------------------------------------------- */
+
+/* Nature Green — pastel greens on a deep forest ground. */
+[data-palette="nature"] {
+  --color-sheet-0: #0b130d;
+  --color-sheet-1: #101c14;
+  --color-sheet-2: #17281c;
+  --color-sheet-3: #21402c;
+  --color-sheet-4: #142219;
+  --color-sheet-5: #101d15;
+  --color-sheet-6: #0f1c14;
+  --color-sheet-7: #050b07;
+
+  --color-purple-100: #dcfce7;
+  --color-purple-200: #bbf7d0;
+  --color-purple-300: #86efac;
+  --color-purple-400: #4ade80;
+  --color-purple-500: #22c55e;
+  --color-purple-600: #16a34a;
+  --color-purple-700: #15803d;
+  --color-purple-800: #166534;
+  --color-purple-900: #14532d;
+
+  --color-indigo-100: #ccfbf1;
+  --color-indigo-200: #99f6e4;
+  --color-indigo-300: #5eead4;
+  --color-indigo-400: #2dd4bf;
+  --color-indigo-700: #0f766e;
+}
+
+/* Scholar Parchment — earthy inks on aged paper (a light palette). */
+[data-palette="parchment"] {
+  --color-sheet-0: #ede0c4;
+  --color-sheet-1: #f4ead2;
+  --color-sheet-2: #e7d9b8;
+  --color-sheet-3: #d8c39a;
+  --color-sheet-4: #eaddc0;
+  --color-sheet-5: #e2d3ad;
+  --color-sheet-6: #e0d1a8;
+  --color-sheet-7: #2e2410; /* stays dark: used as the menu backdrop scrim */
+
+  --color-purple-100: #5c4322;
+  --color-purple-200: #4a3418;
+  --color-purple-300: #6b4f2a;
+  --color-purple-400: #8a5a2c;
+  --color-purple-500: #9c6b34;
+  --color-purple-600: #7a5426;
+  --color-purple-700: #6b4a20;
+  --color-purple-800: #5c3f1c;
+  --color-purple-900: #8a7038;
+
+  --color-slate-50: #2b1d0b;
+  --color-slate-100: #3a2915;
+  --color-slate-200: #47341c;
+  --color-slate-300: #5a4527;
+  --color-slate-500: #766036;
+
+  --color-indigo-100: #43506b;
+  --color-indigo-200: #3a4763;
+  --color-indigo-300: #4a5878;
+  --color-indigo-400: #5a6a8f;
+
+  --color-amber-100: #6b430e;
+  --color-amber-200: #7a4e12;
+  --color-amber-400: #b5822f;
+  --color-amber-500: #9c6f28;
+}
+
+/* Dragon Executive — monochromatic graphite and brushed steel. */
+[data-palette="dragon"] {
+  --color-sheet-0: #0c0c0e;
+  --color-sheet-1: #141416;
+  --color-sheet-2: #1d1d20;
+  --color-sheet-3: #2b2b2f;
+  --color-sheet-4: #202023;
+  --color-sheet-5: #161618;
+  --color-sheet-6: #141416;
+  --color-sheet-7: #070708;
+
+  --color-purple-100: #e6e6e9;
+  --color-purple-200: #d3d3d8;
+  --color-purple-300: #b0b0b8;
+  --color-purple-400: #c4c4cc;
+  --color-purple-500: #9a9aa4;
+  --color-purple-600: #7c7c86;
+  --color-purple-700: #5b5b64;
+  --color-purple-800: #44444b;
+  --color-purple-900: #3a3a40;
+
+  --color-indigo-100: #e6e6e9;
+  --color-indigo-200: #d3d3d8;
+  --color-indigo-300: #b0b0b8;
+  --color-indigo-400: #7c7c86;
+  --color-indigo-700: #44444b;
+
+  --color-amber-100: #d3d3d8;
+  --color-amber-200: #b0b0b8;
+  --color-amber-400: #7c7c86;
+  --color-amber-500: #5b5b64;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
