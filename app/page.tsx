@@ -15,6 +15,7 @@ import AdditionalResources, {
   type ResourceEntry,
 } from "./AdditionalResources";
 import ConfigMenu from "./ConfigMenu";
+import NotesTab, { type NotePage } from "./NotesTab";
 import { DEFAULT_PALETTE, isPaletteId, type PaletteId } from "./palettes";
 
 type SheetData = {
@@ -107,6 +108,8 @@ type SheetData = {
   spellSlotsLevel8Max: string;
   spellSlotsLevel9Max: string;
   additionalResources: ResourceEntry[];
+  notesPages: NotePage[];
+  activeNotePageId: string;
   appearancePalette: PaletteId;
 };
 
@@ -319,6 +322,8 @@ const defaultSheetData: SheetData = {
   spellSlotsLevel8Max: "0",
   spellSlotsLevel9Max: "0",
   additionalResources: [],
+  notesPages: [],
+  activeNotePageId: "",
   appearancePalette: DEFAULT_PALETTE,
 };
 
@@ -327,9 +332,9 @@ const storageKey = "dnd-sheet-2024-v1";
 export default function Home() {
   const [sheetData, setSheetData] = useState<SheetData>(defaultSheetData);
   const [activeTab, setActiveTab] = useState<
-    "info" | "combat" | "features" | "lore"
+    "info" | "combat" | "features" | "lore" | "notes"
   >("info");
-  const [desktopPageTab, setDesktopPageTab] = useState<"I" | "II">("I");
+  const [desktopPageTab, setDesktopPageTab] = useState<"I" | "II" | "III">("I");
   const [hasHydrated, setHasHydrated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [loadStatus, setLoadStatus] = useState("Searching for an existing character…");
@@ -456,6 +461,19 @@ export default function Home() {
       rechargeOther: entry?.rechargeOther ?? "",
       used: entry?.used ?? "0",
     })),
+    notesPages: (Array.isArray(partial.notesPages) ? partial.notesPages : []).map(
+      (page) => {
+        const createdAt = page?.createdAt ?? new Date().toISOString();
+        return {
+          id: page?.id ?? crypto.randomUUID(),
+          title: page?.title ?? "",
+          content: page?.content ?? "",
+          createdAt,
+          updatedAt: page?.updatedAt ?? createdAt,
+        };
+      },
+    ),
+    activeNotePageId: partial.activeNotePageId ?? "",
     appearancePalette: isPaletteId(partial.appearancePalette)
       ? partial.appearancePalette
       : DEFAULT_PALETTE,
@@ -989,6 +1007,88 @@ export default function Home() {
     }));
   };
 
+  const addNotePage = () => {
+    const now = new Date().toISOString();
+    const newPage: NotePage = {
+      id: crypto.randomUUID(),
+      title: "",
+      content: "",
+      createdAt: now,
+      updatedAt: now,
+    };
+    setSheetData((prev) => ({
+      ...prev,
+      notesPages: [...prev.notesPages, newPage],
+      // Land on the page that was just created.
+      activeNotePageId: newPage.id,
+    }));
+  };
+
+  const updateNotePage = (
+    id: string,
+    patch: { title?: string; content?: string },
+  ) => {
+    setSheetData((prev) => ({
+      ...prev,
+      notesPages: prev.notesPages.map((page) =>
+        page.id === id
+          ? { ...page, ...patch, updatedAt: new Date().toISOString() }
+          : page,
+      ),
+    }));
+  };
+
+  const removeNotePage = async (id: string) => {
+    const page = sheetData.notesPages.find((entry) => entry.id === id);
+    if (!page) {
+      return;
+    }
+
+    // Only stop to ask when there is something to lose.
+    if (page.title.trim() || page.content.trim()) {
+      const result = await Swal.fire({
+        title: "Delete this page?",
+        text: `"${page.title.trim() || "Untitled page"}" and everything written on it will be removed.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete",
+        cancelButtonText: "Cancel",
+        background: "#140d24",
+        color: "#e2e8f0",
+        confirmButtonColor: "#a855f7",
+        cancelButtonColor: "#334155",
+      });
+      if (!result.isConfirmed) {
+        return;
+      }
+    }
+
+    setSheetData((prev) => {
+      const index = prev.notesPages.findIndex((entry) => entry.id === id);
+      const remaining = prev.notesPages.filter((entry) => entry.id !== id);
+      return {
+        ...prev,
+        notesPages: remaining,
+        activeNotePageId:
+          prev.activeNotePageId === id
+            ? (remaining[Math.max(index - 1, 0)]?.id ?? "")
+            : prev.activeNotePageId,
+      };
+    });
+  };
+
+  const selectNotePage = (id: string) => {
+    setSheetData((prev) => ({ ...prev, activeNotePageId: id }));
+  };
+
+  // The stored id is what reopens the tab on the page last worked on; fall back
+  // to the first page when it points at something that no longer exists.
+  const activeNotePageId = sheetData.notesPages.some(
+    (page) => page.id === sheetData.activeNotePageId,
+  )
+    ? sheetData.activeNotePageId
+    : (sheetData.notesPages[0]?.id ?? "");
+
   const addModularItem = (side: ModularFieldKey) => {
     setSheetData((prev) => ({
       ...prev,
@@ -1207,7 +1307,7 @@ export default function Home() {
   };
 
   const mobileTabs: {
-    key: "info" | "combat" | "features" | "lore";
+    key: "info" | "combat" | "features" | "lore" | "notes";
     label: string;
     icon: React.ReactNode;
   }[] = [
@@ -1237,6 +1337,13 @@ export default function Home() {
       label: "Details",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      ),
+    },
+    {
+      key: "notes",
+      label: "Notes",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
       ),
     },
   ];
@@ -1378,6 +1485,18 @@ export default function Home() {
             >
               II
             </button>
+            <button
+              type="button"
+              onClick={() => setDesktopPageTab("III")}
+              title="Notes"
+              className={`min-w-16 rounded-md px-5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] transition ${
+                desktopPageTab === "III"
+                  ? "bg-purple-500 text-slate-950"
+                  : "text-purple-200 hover:bg-sheet-3"
+              }`}
+            >
+              III
+            </button>
           </div>
           <div className="absolute right-0 top-1/2 flex -translate-y-1/2 items-center gap-2">
             <button
@@ -1403,8 +1522,8 @@ export default function Home() {
 
         <div
           className={`space-y-3 ${
-            desktopPageTab === "I" ? "block" : "block lg:hidden"
-          }`}
+            activeTab === "notes" ? "hidden" : "block"
+          } ${desktopPageTab === "I" ? "lg:block" : "lg:hidden"}`}
         >
           <section className="flex flex-col gap-3 lg:grid lg:grid-cols-12 lg:gap-3">
           <div className={`flex flex-col gap-3 md:flex-row md:items-stretch lg:contents ${activeTab === "info" ? "flex" : "hidden lg:contents"}`}>
@@ -3791,6 +3910,21 @@ export default function Home() {
             </aside>
           </section>
         </div>
+
+        <div
+          className={`${activeTab === "notes" ? "block" : "hidden"} ${
+            desktopPageTab === "III" ? "lg:block" : "lg:hidden"
+          }`}
+        >
+          <NotesTab
+            pages={sheetData.notesPages}
+            activePageId={activeNotePageId}
+            onSelectPage={selectNotePage}
+            onAddPage={addNotePage}
+            onUpdatePage={updateNotePage}
+            onRemovePage={removeNotePage}
+          />
+        </div>
       </main>
       <footer className="mx-auto w-full max-w-6xl px-4 pb-6 text-center text-xs text-purple-200/70">
         Created by Elyeet · Inspired by the D&D 2024 Character Sheet ·{" "}
@@ -3870,7 +4004,7 @@ export default function Home() {
 
         {/* Sliding panel */}
         <div
-          className={`fixed right-0 top-0 z-65 h-full w-72 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          className={`fixed right-0 top-0 z-65 h-full w-80 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             isTabMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
@@ -3880,13 +4014,13 @@ export default function Home() {
             >
               Sections
             </p>
-            <div className="relative mx-auto w-full max-w-[16rem]">
+            <div className="relative mx-auto w-full max-w-[17.5rem]">
               {/* Hanging rod */}
               <div className="absolute -top-1.5 left-0 right-0 h-1.5 rounded-full bg-linear-to-r from-purple-900 via-purple-400 to-purple-900 shadow-[0_2px_8px_rgba(0,0,0,0.55)]" />
               <div className="absolute -top-2 -left-1 h-3.5 w-3.5 rounded-full border border-purple-700 bg-sheet-0" />
               <div className="absolute -top-2 -right-1 h-3.5 w-3.5 rounded-full border border-purple-700 bg-sheet-0" />
               {/* Hanging flags */}
-              <div className="flex items-start justify-between gap-1.5 pt-1">
+              <div className="flex items-start justify-between gap-1 pt-1">
                 {mobileTabs.map((tab, index) => {
                   const isActive = activeTab === tab.key;
                   return (
@@ -3930,7 +4064,7 @@ export default function Home() {
                 })}
               </div>
             </div>
-            <div className="mx-auto mt-8 flex w-full max-w-[16rem] flex-col gap-2">
+            <div className="mx-auto mt-8 flex w-full max-w-[17.5rem] flex-col gap-2">
               <button
                 type="button"
                 onClick={() => {
